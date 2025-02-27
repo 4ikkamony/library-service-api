@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "user",
     "book_service",
+    "borrowing_service",
 ]
 
 MIDDLEWARE = [
