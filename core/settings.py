@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "drf_spectacular",
     "corsheaders",
     "user",
+    "book_service",
 ]
 
 MIDDLEWARE = [
