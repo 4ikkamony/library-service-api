@@ -131,8 +131,6 @@ class AccountsTests(TestCase):
         self.assertIn("access", response.data)
         self.assertIn("refresh", response.data)
 
-
-
     def test_get_page_me(self):
         token_data = {
             "email": "testemail@test.com",
