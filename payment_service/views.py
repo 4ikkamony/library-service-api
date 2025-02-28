@@ -1,6 +1,3 @@
-from urllib import request
-
-from django.shortcuts import render
 from rest_framework import viewsets
 
 from payment_service.models import Payment
