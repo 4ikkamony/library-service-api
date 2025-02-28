@@ -4,6 +4,8 @@ on:
   push:
   pull_request:
 
+env:
+  DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
 
 jobs:
   test:
