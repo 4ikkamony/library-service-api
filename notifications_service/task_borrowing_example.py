@@ -11,9 +11,7 @@ logger = logging.getLogger(__name__)
 @shared_task(max_retries=3)
 def notify_new_borrowing(borrowing_id, user_email, book_title) -> None:
     try:
-        logger.info(
-            f"Processing notify_new_borrowing for borrowing_id={borrowing_id}"
-        )
+        logger.info(f"Processing notify_new_borrowing for borrowing_id={borrowing_id}")
         message = (
             f"New Borrowing Created!\n"
             f"Borrowing ID: {borrowing_id}\n"
