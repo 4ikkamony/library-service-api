@@ -2,7 +2,13 @@ name: Code Style and Tests
 
 on:
   push:
+    branches:
+      - "main"
+      - "develop"
   pull_request:
+    branches:
+      - "main"
+      - "develop"
 
 env:
   DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
