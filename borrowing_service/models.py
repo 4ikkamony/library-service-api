@@ -16,14 +16,10 @@ class Borrowing(models.Model):
 
     def clean(self):
         if self.book.inventory <= 0:
-            raise ValidationError(
-                "Selected book is out of stock."
-            )
+            raise ValidationError("Selected book is out of stock.")
 
         if self.expected_return_date < self.borrow_date:
-            raise ValidationError(
-                "Expected return date is earlier than borrow date."
-            )
+            raise ValidationError("Expected return date is earlier than borrow date.")
 
         if self.actual_return_date and self.actual_return_date < self.borrow_date:
             raise ValidationError(

@@ -16,13 +16,7 @@ class BorrowingUserSerializer(serializers.ModelSerializer):
 class BorrowingBookSerializer(serializers.ModelSerializer):
     class Meta:
         model = Book
-        fields = (
-            "id",
-            "title",
-            "author",
-            "cover",
-            "daily_fee"
-        )
+        fields = ("id", "title", "author", "cover", "daily_fee")
 
 
 class BorrowingSerializer(serializers.ModelSerializer):
@@ -52,9 +46,7 @@ class BorrowingCreateSerializer(serializers.ModelSerializer):
 
     def validate_book_inventory(self, value):
         if value.inventory <= 0:
-            raise serializers.ValidationError(
-                "Selected book is out of stock."
-            )
+            raise serializers.ValidationError("Selected book is out of stock.")
         return value
 
     def validate_borrowing_date(self, data):
@@ -98,10 +90,4 @@ class BorrowingListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Borrowing
-        fields = (
-            "id",
-            "user",
-            "book",
-            "expected_return_date",
-            "actual_return_date"
-        )
+        fields = ("id", "user", "book", "expected_return_date", "actual_return_date")
