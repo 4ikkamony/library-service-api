@@ -9,15 +9,18 @@ class BaseBookSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Daily fee has to be greater than 0.")
         return value
 
+
 class BookSerializer(BaseBookSerializer):
     class Meta:
         model = Book
         fields = ["id", "title", "author", "inventory", "daily_fee"]
 
+
 class BookListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Book
         fields = ("id", "title", "author")
+
 
 class BookDetailSerializer(BaseBookSerializer):
     class Meta:
