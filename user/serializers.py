@@ -27,3 +27,18 @@ class UserSerializer(serializers.ModelSerializer):
             user.save()
 
         return user
+
+    def validate(self, attrs):
+        first_name = attrs.get("first_name")
+        last_name = attrs.get("last_name")
+
+        if not first_name.isalpha():
+            raise serializers.ValidationError(
+                "The first name must contain only letters."
+            )
+        if not last_name.isalpha():
+            raise serializers.ValidationError(
+                "The last name must contain only letters."
+            )
+
+        return attrs
