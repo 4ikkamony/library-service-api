@@ -19,12 +19,6 @@ class Payment(models.Model):
     session_id = models.CharField(max_length=255)
     money_to_pay = models.DecimalField(max_digits=6, decimal_places=2)
     status = models.CharField(
-        max_length=10,
-        choices=Status.choices,
-        default=Status.PENDING
+        max_length=10, choices=Status.choices, default=Status.PENDING
     )
-    type = models.CharField(
-        max_length=10,
-        choices=Type.choices,
-        default=Type.PAYMENT
-    )
+    type = models.CharField(max_length=10, choices=Type.choices, default=Type.PAYMENT)
