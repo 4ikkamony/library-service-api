@@ -4,7 +4,6 @@ from payment_service.models import Payment
 
 
 class PaymentSerializer(serializers.ModelSerializer):
-    # user = serializers.SerializerMethodField()
     class Meta:
         model = Payment
         fields = (
@@ -16,11 +15,6 @@ class PaymentSerializer(serializers.ModelSerializer):
             "status",
             "type"
         )
-
-    # def get_user(self, obj):
-    #     if obj.borrowing:
-    #         return obj.borrowing.user
-    #     return None
 
 
 class PaymentListSerializer(PaymentSerializer):
