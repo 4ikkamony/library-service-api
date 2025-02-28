@@ -90,7 +90,7 @@ class AccountsTests(TestCase):
 
     def test_user_incorrect_first_name(self):
         user_data = {
-            "first_name": "123",
+            "first_name": "123*",
             "last_name": "testlastname",
             "email": "testuser4@test.com",
             "password": "testpassword",
@@ -101,6 +101,22 @@ class AccountsTests(TestCase):
         self.assertIn("non_field_errors", response.data)
         self.assertIn(
             "The first name must contain only letters.",
+            response.data["non_field_errors"][0],
+        )
+
+    def test_user_incorrect_last_name(self):
+        user_data = {
+            "first_name": "Test",
+            "last_name": "123#",
+            "email": "testuser5@test.com",
+            "password": "testpassword",
+        }
+        response = self.client.post(REGISTER_URL, user_data)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("non_field_errors", response.data)
+        self.assertIn(
+            "The last name must contain only letters.",
             response.data["non_field_errors"][0],
         )
 
