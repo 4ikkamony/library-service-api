@@ -33,3 +33,9 @@ class Borrowing(models.Model):
             self.book.save()
 
         super().save(*args, **kwargs)
+
+    def __str__(self):
+        return (
+            f"Borrowing {self.book} by {self.user} on {self.borrow_date}. "
+            f"Expected return date {self.expected_return_date}"
+        )
