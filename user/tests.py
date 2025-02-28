@@ -33,3 +33,17 @@ class AccountsTests(TestCase):
         self.assertEqual(
             response.data["first_name"][0], "This field is required."
         )
+
+    def test_user_without_last_name(self):
+        user_data = {
+            "first_name": "test_first_name",
+            "email": "testuser3@test.com",
+            "password": "testpassword",
+        }
+        response = self.client.post(REGISTER_URL, user_data)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            response.data["last_name"][0], "This field is required."
+        )
+
