@@ -57,3 +57,18 @@ class AccountsTests(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("access", response.data)
         self.assertIn("refresh", response.data)
+
+    def test_get_page_me(self):
+        token_data = {
+            "email": "testemail@test.com",
+            "password": "testpassword",
+        }
+        response = self.client.post(TOKEN_URL, token_data)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        response2 = self.client.get(
+            MANAGE_URL, HTTP_AUTHORIZATION=f"Bearer {response.data['access']}"
+        )
+
+        self.assertEqual(response2.status_code, status.HTTP_200_OK)
