@@ -4,12 +4,10 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-
 load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ["DJANGO_SECRET_KEY"]
@@ -22,7 +20,6 @@ ALLOWED_HOSTS = []
 INTERNAL_IPS = [
     "127.0.0.1",
 ]
-
 
 # Application definition
 
@@ -76,7 +73,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "core.wsgi.application"
 
-
 # Database
 
 DATABASES = {
@@ -85,7 +81,6 @@ DATABASES = {
         "NAME": BASE_DIR / "db.sqlite3",
     }
 }
-
 
 # Password validation
 
@@ -106,9 +101,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 AUTH_USER_MODEL = "user.User"
-
 
 # Internationalization
 
@@ -120,7 +113,6 @@ USE_I18N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 
 STATIC_URL = "static/"
@@ -128,7 +120,6 @@ STATIC_URL = "static/"
 # Default primary key field type
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
 
 REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
@@ -143,7 +134,6 @@ REST_FRAMEWORK = {
     ),
 }
 
-
 SPECTACULAR_SETTINGS = {
     "TITLE": "Library Service API",
     "DESCRIPTION": "API for managing library",
@@ -157,9 +147,25 @@ SPECTACULAR_SETTINGS = {
     },
 }
 
-
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
     "ROTATE_REFRESH_TOKENS": True,
 }
+
+# Telegram notifications
+TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
+TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
+
+# Celery Configuration
+CELERY_BROKER_URL = (
+    f"redis://:{os.environ.get('REDIS_PASSWORD')}@"
+    f"{os.environ.get('REDIS_HOST')}:{os.environ.get('REDIS_PORT')}/0"
+)
+CELERY_RESULT_BACKEND = CELERY_BROKER_URL
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TIMEZONE = "UTC"
+CELERY_WORKER_POOL = "threads"  # for windows to resolve PermissionError
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True

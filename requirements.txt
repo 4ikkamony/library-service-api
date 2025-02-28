@@ -9,3 +9,6 @@ flake8==7.1.2
 django-cors-headers==4.7.0
 djangorestframework-simplejwt~=5.4.0
 coverage==7.6.12
+celery==5.4.0
+requests==2.32.3
+redis==5.2.1
