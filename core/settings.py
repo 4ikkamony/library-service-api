@@ -156,3 +156,16 @@ SIMPLE_JWT = {
 # Telegram notifications
 TELEGRAM_BOT_TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
 TELEGRAM_CHAT_ID = os.environ["TELEGRAM_CHAT_ID"]
+
+# Celery Configuration
+CELERY_BROKER_URL = (
+    f"redis://:{os.environ.get('REDIS_PASSWORD')}@"
+    f"{os.environ.get('REDIS_HOST')}:{os.environ.get('REDIS_PORT')}/0"
+)
+CELERY_RESULT_BACKEND = CELERY_BROKER_URL
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TIMEZONE = "UTC"
+CELERY_WORKER_POOL = "threads"  # for windows to resolve PermissionError
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
