@@ -88,6 +88,22 @@ class AccountsTests(TestCase):
             response.data["last_name"][0], "This field is required."
         )
 
+    def test_user_incorrect_first_name(self):
+        user_data = {
+            "first_name": "123",
+            "last_name": "testlastname",
+            "email": "testuser4@test.com",
+            "password": "testpassword",
+        }
+        response = self.client.post(REGISTER_URL, user_data)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("non_field_errors", response.data)
+        self.assertIn(
+            "The first name must contain only letters.",
+            response.data["non_field_errors"][0],
+        )
+
     def test_user_get_tokens(self):
         token_data = {
             "email": "testemail@test.com",
