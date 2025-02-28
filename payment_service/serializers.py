@@ -17,7 +17,7 @@ class PaymentSerializer(serializers.Serializer):
         )
 
 
-class PaymentsListSerializer(serializers.Serializer):
+class PaymentListSerializer(serializers.Serializer):
     class Meta:
         model = Payment
         fields = (
