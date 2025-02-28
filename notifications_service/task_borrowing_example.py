@@ -1,16 +1,15 @@
 import logging
+from celery import Task, shared_task
+from .utils import send_telegram_message
 
 # Used for Celery logging via:
 # celery -A core.celery_config worker -l info
 # Can be used in core/settings.py if needed
 logger = logging.getLogger(__name__)
 
-from celery import shared_task
-from .utils import send_telegram_message
-
 
 @shared_task(max_retries=3)
-def notify_new_borrowing(borrowing_id, user_email, book_title):
+def notify_new_borrowing(borrowing_id, user_email, book_title) -> None:
     try:
         logger.info(
             f"Processing notify_new_borrowing for borrowing_id={borrowing_id}"
@@ -27,4 +26,5 @@ def notify_new_borrowing(borrowing_id, user_email, book_title):
             raise Exception("Failed to send Telegram notification")
     except Exception as exc:
         logger.error(f"Error in notify_new_borrowing: {str(exc)}")
-        raise self.retry(exc=exc, countdown=60)
+        # noinspection PyUnresolvedReferences
+        raise self.retry(exc=exc, countdown=60)  # noqa: F821
