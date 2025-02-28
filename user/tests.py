@@ -47,3 +47,13 @@ class AccountsTests(TestCase):
             response.data["last_name"][0], "This field is required."
         )
 
+    def test_user_get_tokens(self):
+        token_data = {
+            "email": "testemail@test.com",
+            "password": "testpassword",
+        }
+        response = self.client.post(TOKEN_URL, token_data)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("access", response.data)
+        self.assertIn("refresh", response.data)
