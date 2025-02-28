@@ -1,7 +1,5 @@
 from django.urls import path
 
-urlpatterns = [
-
-]
+urlpatterns = []
 
 app_name = "book_service"
