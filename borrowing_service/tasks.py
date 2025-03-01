@@ -52,9 +52,7 @@ def check_overdue_borrowings(self):
             message = "No borrowings overdue today!"
             success = send_telegram_message(message)
             if not success:
-                logger.error(
-                    "Failed to send 'no overdue borrowings' notification"
-                    )
+                logger.error("Failed to send 'no overdue borrowings' notification")
                 raise Exception("Failed to send Telegram notification")
             logger.info("No overdue borrowings found, notification sent")
             return
