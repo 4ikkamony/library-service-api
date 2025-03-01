@@ -23,9 +23,9 @@ class Borrowing(models.Model):
             raise ValidationError("Expected return date is earlier than borrow date.")
 
         if self.actual_return_date and self.actual_return_date < self.borrow_date:
-         raise ValidationError(
-               "Actual return date cannot be earlier than borrow date."
-           )
+            raise ValidationError(
+                "Actual return date cannot be earlier than borrow date."
+            )
 
     def save(self, *args, **kwargs):
         self.clean()
