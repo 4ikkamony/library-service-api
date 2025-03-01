@@ -4,7 +4,7 @@ from payment_service.views import (
     ListPaymentView,
     DetailPaymentView,
     SuccessPaymentView,
-    CancelPaymentView
+    CancelPaymentView,
 )
 
 urlpatterns = [

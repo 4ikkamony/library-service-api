@@ -19,7 +19,10 @@ class PaymentSerializer(serializers.ModelSerializer):
             "session_url",
             "session_id",
         )
-        read_only_fields = ("session_url","session_id",)
+        read_only_fields = (
+            "session_url",
+            "session_id",
+        )
 
 
 class PaymentListSerializer(serializers.ModelSerializer):

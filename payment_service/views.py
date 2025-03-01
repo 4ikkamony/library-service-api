@@ -46,17 +46,19 @@ class SuccessPaymentView(APIView):
 
         if not session_id:
             return Response(
-                {"error": "Session ID is required"},
-                status=status.HTTP_400_BAD_REQUEST
+                {"error": "Session ID is required"}, status=status.HTTP_400_BAD_REQUEST
             )
 
         try:
             payment = get_object_or_404(Payment, session_id=session_id)
 
-            if payment.borrowing.user.id != request.user.id and not request.user.is_superuser:
+            if (
+                payment.borrowing.user.id != request.user.id
+                and not request.user.is_superuser
+            ):
                 return Response(
                     {"error": "You don't have permission to view this payment"},
-                    status=status.HTTP_403_FORBIDDEN
+                    status=status.HTTP_403_FORBIDDEN,
                 )
 
             checkout_session = stripe.checkout.Session.retrieve(session_id)
@@ -72,25 +74,24 @@ class SuccessPaymentView(APIView):
                     payment.borrowing.is_active = False
                     payment.borrowing.save()
 
-                return Response({
-                    "message": "Payment successful",
-                    "payment": PaymentSerializer(payment).data
-                })
+                return Response(
+                    {
+                        "message": "Payment successful",
+                        "payment": PaymentSerializer(payment).data,
+                    }
+                )
             else:
-                return Response({
-                    "message": "Payment not completed",
-                    "status": checkout_session.payment_status
-                })
+                return Response(
+                    {
+                        "message": "Payment not completed",
+                        "status": checkout_session.payment_status,
+                    }
+                )
 
         except stripe.error.StripeError as e:
-            return Response(
-                {"error": str(e)},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class CancelPaymentView(APIView):
     def get(self, request, *args, **kwargs):
-        return Response({
-            "message": "Payment was canceled. No charges were made."
-        })
+        return Response({"message": "Payment was canceled. No charges were made."})
