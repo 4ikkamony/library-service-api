@@ -173,7 +173,9 @@ CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 # Celery Beat Schedule
 CELERY_BEAT_SCHEDULE = {
     'check-overdue-borrowings-daily': {
-        'task': 'notifications_service.tasks.check_overdue_borrowings',
+        'task': 'borrowing_service.tasks.check_overdue_borrowings',
+        # 60 seconds here only for dev debug
+        # TODO: change to daily for prod
         'schedule': 60,  # 86400 seconds = 24 hours (daily)
         # 'schedule': crontab(hour=9, minute=0),  # Every day at 9:00
     },
