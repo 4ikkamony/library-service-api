@@ -19,32 +19,18 @@ class BorrowingBookSerializer(serializers.ModelSerializer):
         fields = ("id", "title", "author", "cover", "daily_fee")
 
 
-class BorrowingSerializer(serializers.ModelSerializer):
-
-    book = BorrowingBookSerializer(read_only=True)
-    user = BorrowingUserSerializer(read_only=True)
+class BorrowingCreateSerializer(serializers.ModelSerializer):
+    book = serializers.PrimaryKeyRelatedField(queryset=Book.objects.all())
 
     class Meta:
         model = Borrowing
         fields = (
             "id",
-            "user",
-            "book",
-            "borrow_date",
             "expected_return_date",
-            "actual_return_date",
+            "book",
         )
 
-
-class BorrowingCreateSerializer(serializers.ModelSerializer):
-    book = serializers.PrimaryKeyRelatedField(queryset=Book.objects.all())
-    cover = serializers.CharField(source="book.cover")
-
-    class Meta:
-        model = Borrowing
-        fields = ("id", "expected_return_date", "book", "cover")
-
-    def validate_book_inventory(self, value):
+    def validate_book(self, value):
         if value.inventory <= 0:
             raise serializers.ValidationError("Selected book is out of stock.")
         return value
@@ -91,3 +77,9 @@ class BorrowingListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Borrowing
         fields = ("id", "user", "book", "expected_return_date", "actual_return_date")
+
+
+class BorrowingReturnSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Borrowing
+        fields = ("id", "actual_return_date")
