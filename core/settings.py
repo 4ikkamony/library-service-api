@@ -169,3 +169,7 @@ CELERY_RESULT_SERIALIZER = "json"
 CELERY_TIMEZONE = "UTC"
 CELERY_WORKER_POOL = "threads"  # for windows to resolve PermissionError
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
+
+# Stripe Settings
+STRIPE_PUBLISHABLE_KEY = os.environ.get("STRIPE_SECRET_KEY")
+STRIPE_SECRET_KEY = os.environ.get("STRIPE_PUBLISHABLE_KEY")
