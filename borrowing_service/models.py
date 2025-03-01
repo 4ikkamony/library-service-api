@@ -7,7 +7,7 @@ from book_service.models import Book
 
 
 class Borrowing(models.Model):
-    borrow_date = models.DateField(default=timezone.now)
+    borrow_date = models.DateField(auto_now_add=True)
     expected_return_date = models.DateField()
     actual_return_date = models.DateField(null=True, blank=True)
     book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name="borrowings")
@@ -16,13 +16,15 @@ class Borrowing(models.Model):
     )
 
     def clean(self):
+        today = timezone.now().date()
+
         if self.book.inventory <= 0:
             raise ValidationError("Selected book is out of stock.")
 
-        if self.expected_return_date < self.borrow_date:
+        if self.expected_return_date < today:
             raise ValidationError("Expected return date is earlier than borrow date.")
 
-        if self.actual_return_date and self.actual_return_date < self.borrow_date:
+        if self.actual_return_date and self.actual_return_date < today:
             raise ValidationError(
                 "Actual return date cannot be earlier than borrow date."
             )
