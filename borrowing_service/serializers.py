@@ -80,6 +80,8 @@ class BorrowingListSerializer(serializers.ModelSerializer):
 
 
 class BorrowingReturnSerializer(serializers.ModelSerializer):
+    actual_return_date = serializers.DateField(default=timezone.now, read_only=True)
+
     class Meta:
         model = Borrowing
         fields = ("id", "actual_return_date")
