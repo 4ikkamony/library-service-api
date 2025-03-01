@@ -170,6 +170,17 @@ CELERY_TIMEZONE = "UTC"
 CELERY_WORKER_POOL = "threads"  # for windows to resolve PermissionError
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 
+# Celery Beat Schedule
+CELERY_BEAT_SCHEDULE = {
+    "check-overdue-borrowings-daily": {
+        "task": "borrowing_service.tasks.check_overdue_borrowings",
+        # 60 seconds here only for dev debug
+        # TODO: change to daily for prod
+        "schedule": 60,  # 86400 seconds = 24 hours (daily)
+        # 'schedule': crontab(hour=9, minute=0),  # Every day at 9:00
+    },
+}
+
 # Stripe Settings
 STRIPE_PUBLISHABLE_KEY = os.environ.get("STRIPE_SECRET_KEY")
 STRIPE_SECRET_KEY = os.environ.get("STRIPE_PUBLISHABLE_KEY")
