@@ -30,7 +30,7 @@ def notify_overdue_borrowings(self):
 
     for message in messages:
         try:
-            logger.info(f"Processing notify_overdue_borrowings")
+            logger.info("Processing notify_overdue_borrowings")
             success = send_telegram_message(message)
             if not success:
                 logger.error("Failed to send Telegram notification")
