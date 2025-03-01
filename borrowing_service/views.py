@@ -57,7 +57,7 @@ class BorrowingViewSet(
     def perform_create(self, serializer):
         user = self.request.user
 
-        if user.is_authenticated:
-            serializer.save(user=user)
+        if not user.is_authenticated:
+            raise ValidationError("User must be authenticated")
 
-        raise ValidationError("User must be authenticated")
+        serializer.save(user=user)
