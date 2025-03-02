@@ -43,7 +43,7 @@ def create_payment_session(borrowing, payment_type=Payment.Type.PAYMENT, request
     if request:
         success_url = request.build_absolute_uri(
             reverse("payment_service:payment-success")
-            + f"?session_id={{CHECKOUT_SESSION_ID}}"
+            + "?session_id={CHECKOUT_SESSION_ID}"
         )
         cancel_url = request.build_absolute_uri(
             reverse("payment_service:payment-cancel")
