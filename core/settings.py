@@ -179,6 +179,10 @@ CELERY_BEAT_SCHEDULE = {
         "schedule": 60,  # 86400 seconds = 24 hours (daily)
         # 'schedule': crontab(hour=9, minute=0),  # Every day at 9:00
     },
+    "expire-payments-every-minute": {
+        "task": "payment_service.tasks.expire_payments",
+        "schedule": 60,
+    }
 }
 
 # Stripe Settings
