@@ -1,5 +1,6 @@
 from django.utils import timezone
 from rest_framework import mixins, status
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
@@ -21,6 +22,26 @@ class BorrowingViewSet(
     GenericViewSet,
 ):
     queryset = Borrowing.objects.all()
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        user = self.request.user
+
+        is_active = self.request.query_params.get("is_active")
+        if is_active is not None:
+            if is_active.lower() in ["true", "1", "yes"]:
+                qs = qs.filter(actual_return_date__isnull=True)
+            elif is_active.lower() in ["false", "0", "no"]:
+                qs = qs.filter(actual_return_date__isnull=False)
+
+        if not user.is_staff:
+            qs = qs.filter(user=user)
+        else:
+            user_id = self.request.query_params.get("user_id")
+            if user_id:
+                qs = qs.filter(user__id=user_id)
+        return qs
 
     def get_serializer_class(self):
         if self.action == "list":
