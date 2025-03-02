@@ -99,7 +99,7 @@ class CancelPaymentView(APIView):
             {
                 "message": "Payment was canceled. No charges were made.",
             },
-            status=status.HTTP_200_OK
+            status=status.HTTP_200_OK,
         )
 
 
@@ -143,7 +143,6 @@ class RenewStripeSessionView(APIView):
                 mode="payment",
                 success_url=success_url,
                 cancel_url=cancel_url,
-
             )
 
             try:
@@ -160,7 +159,7 @@ class RenewStripeSessionView(APIView):
 
                     payment.save()
 
-            except Exception as e:
+            except Exception:
                 return Response(
                     {"error": "Failed to update payment session."},
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -168,9 +167,9 @@ class RenewStripeSessionView(APIView):
             return Response(
                 {
                     "message": "Payment session renewed",
-                    "session_url": payment.session_url
+                    "session_url": payment.session_url,
                 },
-                status=status.HTTP_200_OK
+                status=status.HTTP_200_OK,
             )
 
         except stripe.error.StripeError as e:
