@@ -11,7 +11,6 @@ def expired_sessions() -> tuple[datetime, QuerySet]:
     return (
         current_time,
         Payment.objects.filter(
-        session_expires_at__lt=current_time,
-        status=Payment.Status.PENDING
-        )
+            session_expires_at__lt=current_time, status=Payment.Status.PENDING
+        ),
     )

@@ -182,7 +182,7 @@ CELERY_BEAT_SCHEDULE = {
     "expire-payments-every-minute": {
         "task": "payment_service.tasks.expire_payments",
         "schedule": 60,
-    }
+    },
 }
 
 # Stripe Settings
