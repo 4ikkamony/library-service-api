@@ -38,7 +38,7 @@ def create_payment_session(borrowing, request, payment_type=Payment.Type.PAYMENT
     if payment_type == Payment.Type.PAYMENT:
         money_to_pay = Decimal(
             borrowing.book.daily_fee
-            * (borrowing.actual_return_date - borrowing.borrow_date).days
+            * (borrowing.expected_return_date - borrowing.borrow_date).days
         )
         payment_description = f"Book rental: {borrowing.book.title}"
 
