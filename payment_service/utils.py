@@ -9,41 +9,51 @@ from payment_service.models import Payment, datetime_from_timestamp
 
 def create_payment_session(borrowing, payment_type=Payment.Type.PAYMENT, request=None):
     """
-    Creates a new Stripe Checkout Session for a borrowing and saves the 
-    associated payment record in the database.
-    
-    Args:
-        borrowing: The Borrowing object to create a payment for
-        payment_type: Type of payment (Payment.Type.PAYMENT or Payment.Type.FINE)
-        request: The request object to generate success/cancel URLs
-    
-    Returns:
-        tuple: (Payment object, Stripe session URL)
+        Creates a new Stripe Checkout Session for a borrowing and saves the
+        associated payment record in the database.
+
+        Args:
+            borrowing: The Borrowing object to create a payment for
+            payment_type: Type of payment (Payment.Type.PAYMENT or Payment.Type.FINE)
+            request: The request object to generate success/cancel URLs
+
+        Returns:
+            tuple: (Payment object, Stripe session URL)
     """
     stripe.api_key = settings.STRIPE_SECRET_KEY
-    
+
     if payment_type == Payment.Type.PAYMENT:
-        money_to_pay = Decimal(borrowing.book.daily_fee *
-                     (borrowing.actual_return_date - borrowing.borrow_date).days)
+        money_to_pay = Decimal(
+            borrowing.book.daily_fee * (
+                borrowing.actual_return_date - borrowing.borrow_date
+            ).days
+        )
         payment_description = f"Book rental: {borrowing.book.title}"
 
     elif payment_type == Payment.Type.FINE:
-        money_to_pay = Decimal(borrowing.book.daily_fee *
-                               (borrowing.actual_return_date - borrowing.expected_return_date).days)
+        money_to_pay = Decimal(
+            borrowing.book.daily_fee * (
+                borrowing.actual_return_date - borrowing.expected_return_date
+            ).days
+        )
         payment_description = f"Late return fine: {borrowing.book.title}"
     else:
         raise ValueError(f"Invalid payment type: {payment_type}")
-    
+
     if request:
         success_url = request.build_absolute_uri(
-            reverse("payment_service:payment-success") + f"?session_id={{CHECKOUT_SESSION_ID}}"
+            reverse("payment_service:payment-success")
+            + f"?session_id={{CHECKOUT_SESSION_ID}}"
         )
-        cancel_url = request.build_absolute_uri(reverse("payment_service:payment-cancel"))
+        cancel_url = request.build_absolute_uri(
+            reverse("payment_service:payment-cancel")
+        )
     else:
         domain = settings.DOMAIN
-        success_url = f"{domain}{reverse("payment_service:payment-success")}?session_id={{CHECKOUT_SESSION_ID}}"
+        success_url = (f"{domain}{reverse("payment_service:payment-success")}"
+                       f"?session_id={{CHECKOUT_SESSION_ID}}")
         cancel_url = f"{domain}{reverse("payment_service:payment-cancel")}"
-    
+
     try:
         checkout_session = stripe.checkout.Session.create(
             payment_method_types=["card"],
@@ -73,9 +83,9 @@ def create_payment_session(borrowing, payment_type=Payment.Type.PAYMENT, request
             session_expires_at=datetime_from_timestamp(checkout_session.expires_at),
             session_url=checkout_session.url,
         )
-        
+
         return payment, checkout_session.url
-        
+
     except stripe.error.StripeError as e:
         payment.status = Payment.Status.ERROR
         payment.save()
