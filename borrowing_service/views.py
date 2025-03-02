@@ -154,7 +154,9 @@ class BorrowingViewSet(
             borrowing.book.inventory += 1
 
             if borrowing.actual_return_date > borrowing.expected_return_date:
-                payment, session_url = create_payment_session(borrowing, request, Payment.Type.FINE)
+                payment, session_url = create_payment_session(
+                    borrowing, request, Payment.Type.FINE
+                )
                 response_data = {
                     "message": "The book was returned late, you must pay a fine.",
                     "payment_id": payment.id,

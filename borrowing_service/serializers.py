@@ -24,6 +24,7 @@ class BorrowingBookSerializer(serializers.ModelSerializer):
 class BorrowingCreateSerializer(serializers.ModelSerializer):
     book = serializers.PrimaryKeyRelatedField(queryset=Book.objects.all())
     expected_return_date = serializers.DateField(required=True)
+
     class Meta:
         model = Borrowing
         fields = (
@@ -60,7 +61,9 @@ class BorrowingCreateSerializer(serializers.ModelSerializer):
         request = self.context["request"]
         with transaction.atomic():
             borrowing = Borrowing.objects.create(**validated_data)
-            payment, session_url = create_payment_session(borrowing, request, Payment.Type.PAYMENT)
+            payment, session_url = create_payment_session(
+                borrowing, request, Payment.Type.PAYMENT
+            )
 
             return borrowing
 
@@ -70,12 +73,15 @@ class BorrowingCreateSerializer(serializers.ModelSerializer):
         payment = Payment.objects.filter(borrowing=instance).first()
         session_url = payment.session_url if payment else None
 
-        data.update({
-            "payment_id": payment.id if payment else None,
-            "session_url": session_url,
-        })
+        data.update(
+            {
+                "payment_id": payment.id if payment else None,
+                "session_url": session_url,
+            }
+        )
 
         return data
+
 
 class BorrowingDetailSerializer(serializers.ModelSerializer):
     book = BorrowingBookSerializer(read_only=True)
