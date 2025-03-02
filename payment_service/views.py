@@ -101,7 +101,15 @@ class CancelPaymentView(APIView):
 
 class RenewStripeSessionView(APIView):
 
-    def post(self, request, payment_id):
+    def post(self, request):
+        payment_id = request.data.get("payment_id")
+
+        if not payment_id:
+            return Response(
+                {"error": "payment_id is required", },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         payment = get_object_or_404(Payment, id=payment_id)
         if payment.status != payment.Status.EXPIRED:
             return Response(
@@ -111,8 +119,17 @@ class RenewStripeSessionView(APIView):
                 }
             )
 
+        if (
+            payment.borrowing.user.id != request.user.id
+            and not request.user.is_staff
+        ):
+            return Response(
+                {"error": "You don't have permission to view this payment"},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
         success_url = (
-            request.build_absolute_uri(reverse("payment:stripe-success"))
+            request.build_absolute_uri(reverse("payment_service:payment-success"))
             + "?session_id={CHECKOUT_SESSION_ID}"
         )
         cancel_url = request.build_absolute_uri(
