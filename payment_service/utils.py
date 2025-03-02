@@ -3,13 +3,11 @@ from decimal import Decimal
 import stripe
 from django.conf import settings
 from django.urls import reverse
-from rest_framework import status
-from rest_framework.response import Response
 
 from payment_service.models import Payment, datetime_from_timestamp
 
 
-def create_payment_session(borrowing, payment_type=Payment.Type.PAYMENT, request=None):
+def create_payment_session(borrowing, request, payment_type=Payment.Type.PAYMENT):
     """
     Creates a new Stripe Checkout Session for a borrowing and saves the
     associated payment record in the database.
@@ -27,34 +25,26 @@ def create_payment_session(borrowing, payment_type=Payment.Type.PAYMENT, request
     if payment_type == Payment.Type.PAYMENT:
         money_to_pay = Decimal(
             borrowing.book.daily_fee
-            * (borrowing.actual_return_date - borrowing.borrow_date).days
+            * (borrowing.expected_return_date.days - borrowing.borrow_date.days)
         )
         payment_description = f"Book rental: {borrowing.book.title}"
 
     elif payment_type == Payment.Type.FINE:
         money_to_pay = Decimal(
             borrowing.book.daily_fee
-            * (borrowing.actual_return_date - borrowing.expected_return_date).days
+            * (borrowing.actual_return_date.days - borrowing.expected_return_date.days)
         )
         payment_description = f"Late return fine: {borrowing.book.title}"
     else:
         raise ValueError(f"Invalid payment type: {payment_type}")
 
-    if request:
-        success_url = request.build_absolute_uri(
-            reverse("payment_service:payment-success")
-            + "?session_id={CHECKOUT_SESSION_ID}"
-        )
-        cancel_url = request.build_absolute_uri(
-            reverse("payment_service:payment-cancel")
-        )
-    else:
-        domain = settings.DOMAIN
-        success_url = (
-            f"{domain}{reverse("payment_service:payment-success")}"
-            f"?session_id={{CHECKOUT_SESSION_ID}}"
-        )
-        cancel_url = f"{domain}{reverse("payment_service:payment-cancel")}"
+    success_url = request.build_absolute_uri(
+        reverse("payment_service:payment-success")
+        + "?session_id={CHECKOUT_SESSION_ID}"
+    )
+    cancel_url = request.build_absolute_uri(
+        reverse("payment_service:payment-cancel")
+    )
 
     try:
         checkout_session = stripe.checkout.Session.create(
@@ -66,7 +56,7 @@ def create_payment_session(borrowing, payment_type=Payment.Type.PAYMENT, request
                         "product_data": {
                             "name": payment_description,
                         },
-                        "unit_amount": money_to_pay,
+                        "unit_amount": int(money_to_pay * 100),
                     },
                     "quantity": 1,
                 },
@@ -77,9 +67,7 @@ def create_payment_session(borrowing, payment_type=Payment.Type.PAYMENT, request
         )
 
     except stripe.error.StripeError as e:
-        return Response(
-            {"error": f"Stripe error: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST
-        )
+        raise e
 
     payment = Payment.objects.create(
         borrowing=borrowing,
