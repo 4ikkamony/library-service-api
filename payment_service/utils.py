@@ -3,6 +3,8 @@ from decimal import Decimal
 import stripe
 from django.conf import settings
 from django.urls import reverse
+from rest_framework import status
+from rest_framework.response import Response
 
 from payment_service.models import Payment, datetime_from_timestamp
 
@@ -74,19 +76,19 @@ def create_payment_session(borrowing, payment_type=Payment.Type.PAYMENT, request
             cancel_url=cancel_url,
         )
 
-        payment = Payment.objects.create(
-            borrowing=borrowing,
-            status=Payment.Status.PENDING,
-            type=payment_type,
-            money_to_pay=money_to_pay,
-            session_id=checkout_session.id,
-            session_expires_at=datetime_from_timestamp(checkout_session.expires_at),
-            session_url=checkout_session.url,
+    except stripe.error.StripeError as e:
+        return Response(
+            {"error": f"Stripe error: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST
         )
 
-        return payment, checkout_session.url
+    payment = Payment.objects.create(
+        borrowing=borrowing,
+        status=Payment.Status.PENDING,
+        type=payment_type,
+        money_to_pay=money_to_pay,
+        session_id=checkout_session.id,
+        session_expires_at=datetime_from_timestamp(checkout_session.expires_at),
+        session_url=checkout_session.url,
+    )
 
-    except stripe.error.StripeError as e:
-        payment.status = Payment.Status.ERROR
-        payment.save()
-        raise e
+    return payment, checkout_session.url
