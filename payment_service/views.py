@@ -38,7 +38,7 @@ class DetailPaymentView(generics.RetrieveAPIView):
 
 
 class SuccessPaymentView(APIView):
-    def post(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         """
         Check successful Stripe payment and update payment status
         """
