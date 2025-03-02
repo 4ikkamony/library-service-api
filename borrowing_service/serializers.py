@@ -51,8 +51,6 @@ class BorrowingCreateSerializer(serializers.ModelSerializer):
 
 
 class BorrowingPaymentListSerializer(serializers.ModelSerializer):
-    borrowing = serializers.PrimaryKeyRelatedField(queryset=Borrowing.objects.all())
-
     class Meta:
         model = Payment
         fields = (
