@@ -106,8 +106,10 @@ class RenewStripeSessionView(APIView):
 
         if not payment_id:
             return Response(
-                {"error": "payment_id is required", },
-                status=status.HTTP_400_BAD_REQUEST
+                {
+                    "error": "payment_id is required",
+                },
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
         payment = get_object_or_404(Payment, id=payment_id)
@@ -119,10 +121,7 @@ class RenewStripeSessionView(APIView):
                 }
             )
 
-        if (
-            payment.borrowing.user.id != request.user.id
-            and not request.user.is_staff
-        ):
+        if payment.borrowing.user.id != request.user.id and not request.user.is_staff:
             return Response(
                 {"error": "You don't have permission to view this payment"},
                 status=status.HTTP_403_FORBIDDEN,
