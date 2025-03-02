@@ -1,5 +1,6 @@
 import datetime
 
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
 
@@ -31,3 +32,11 @@ class Payment(models.Model):
         max_length=10, choices=Status.choices, default=Status.PENDING
     )
     type = models.CharField(max_length=10, choices=Type.choices, default=Type.PAYMENT)
+
+    def clean(self):
+        if self.money_to_pay < 0:
+            raise ValidationError("The value cannot be negative.")
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
