@@ -1,12 +1,13 @@
 import stripe
 from django.conf import settings
+from django.db import transaction
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets, status, generics
-from rest_framework.decorators import action
+from django.urls import reverse
+from rest_framework import status, generics
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from payment_service.models import Payment
+from payment_service.models import Payment, datetime_from_timestamp
 from payment_service.serializers import PaymentSerializer, PaymentListSerializer
 
 
@@ -94,4 +95,83 @@ class SuccessPaymentView(APIView):
 
 class CancelPaymentView(APIView):
     def get(self, request, *args, **kwargs):
-        return Response({"message": "Payment was canceled. No charges were made."})
+        return Response(
+            {
+                "message": "Payment was canceled. No charges were made.",
+            },
+            status=status.HTTP_200_OK
+        )
+
+
+class RenewStripeSessionView(APIView):
+
+    # TODO extract common logic
+    # when we'll have function to create a payment,
+    # where session is also created, it might be similar to that
+    def post(self, request, payment_id):
+        payment = get_object_or_404(Payment, id=payment_id)
+        if payment.status != payment.Status.EXPIRED:
+            return Response(
+                {
+                    "error": "Payment is not expired",
+                    "status": status.HTTP_400_BAD_REQUEST,
+                }
+            )
+
+        success_url = request.build_absolute_uri(
+            reverse("payment_service:payment-success")
+        )
+        cancel_url = request.build_absolute_uri(
+            reverse("payment_service:payment-cancel")
+        )
+
+        try:
+            new_session = stripe.checkout.Session.create(
+                payment_method_types=["card"],
+                line_items=[
+                    {
+                        "price_data": {
+                            "currency": "usd",
+                            "product_data": {
+                                "name": f"Payment #{payment.id}",
+                            },
+                            "unit_amount": int(payment.money_to_pay * 100),
+                        },
+                        "quantity": 1,
+                    }
+                ],
+                mode="payment",
+                success_url=success_url,
+                cancel_url=cancel_url,
+
+            )
+
+            try:
+                with transaction.atomic():
+                    payment.session_url = new_session.get("url")
+                    payment.session_id = new_session.get("id")
+
+                    expires_at_timestamp = new_session.get("expires_at")
+                    expires_at_datetime = datetime_from_timestamp(expires_at_timestamp)
+
+                    payment.session_expires_at = expires_at_datetime
+
+                    payment.status = Payment.Status.PENDING
+
+                    payment.save()
+
+            except Exception as e:
+                return Response(
+                    {"error": "Failed to update payment session."},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
+            return Response(
+                {
+                    "message": "Payment session renewed",
+                    "session_url": payment.session_url
+                },
+                status=status.HTTP_200_OK
+            )
+
+        except stripe.error.StripeError as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
