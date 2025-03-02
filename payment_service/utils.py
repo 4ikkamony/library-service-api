@@ -15,9 +15,8 @@ def expired_sessions() -> tuple[datetime, QuerySet]:
     return (
         current_time,
         Payment.objects.filter(
-            session_expires_at__lt=current_time,
-            status=Payment.Status.PENDING
-        )
+            session_expires_at__lt=current_time, status=Payment.Status.PENDING
+        ),
     )
 
 
@@ -91,4 +90,3 @@ def create_payment_session(borrowing, request, payment_type=Payment.Type.PAYMENT
     )
 
     return payment, checkout_session.url
-
