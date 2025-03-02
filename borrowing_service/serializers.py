@@ -57,7 +57,6 @@ class BorrowingPaymentListSerializer(serializers.ModelSerializer):
         model = Payment
         fields = (
             "id",
-            "borrowing",
             "status",
             "type",
             "money_to_pay",
@@ -93,7 +92,9 @@ class BorrowingDetailSerializer(serializers.ModelSerializer):
 class BorrowingListSerializer(serializers.ModelSerializer):
     book = BorrowingBookSerializer(read_only=True)
     user = BorrowingUserSerializer(read_only=True)
-    payment_count = serializers.SerializerMethodField()
+    payments = BorrowingPaymentListSerializer(
+        source="payment", many=True, read_only=True
+    )
 
     class Meta:
         model = Borrowing
@@ -101,13 +102,11 @@ class BorrowingListSerializer(serializers.ModelSerializer):
             "id",
             "user",
             "book",
+            "borrow_date",
             "expected_return_date",
             "actual_return_date",
-            "payment_count",
+            "payments",
         )
-
-    def get_payment_count(self, obj):
-        return obj.payment.count()
 
 
 class BorrowingReturnSerializer(serializers.ModelSerializer):
