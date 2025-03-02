@@ -1,10 +1,23 @@
+from datetime import datetime
 from decimal import Decimal
 
 import stripe
+from django.db.models import QuerySet
+from django.utils import timezone
 from django.conf import settings
 from django.urls import reverse
 
 from payment_service.models import Payment, datetime_from_timestamp
+
+
+def expired_sessions() -> tuple[datetime, QuerySet]:
+    current_time = timezone.now()
+    return (
+        current_time,
+        Payment.objects.filter(
+            session_expires_at__lt=current_time, status=Payment.Status.PENDING
+        ),
+    )
 
 
 def create_payment_session(borrowing, request, payment_type=Payment.Type.PAYMENT):
