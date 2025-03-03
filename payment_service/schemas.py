@@ -98,7 +98,7 @@ renew_stripe_session_schema = extend_schema(
         },
         400: {
             "description": "Bad request (missing payment_id, "
-                           "payment not expired, Stripe error)",
+            "payment not expired, Stripe error)",
             "content": {
                 "application/json": {
                     "schema": {
