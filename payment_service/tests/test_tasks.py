@@ -1,7 +1,11 @@
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from unittest.mock import patch, Mock
-from payment_service.tasks import expire_payments, notify_new_payment
+from payment_service.tasks import (
+    expire_payments,
+    notify_new_payment,
+    notify_successful_payment
+)
 from payment_service.models import Payment
 from borrowing_service.models import Borrowing
 from book_service.models import Book
@@ -208,3 +212,91 @@ class NotifyNewPaymentTestCase(TestCase):
         )
 
         self.mock_send_telegram.assert_called_once()
+
+
+class NotifySuccessfulPaymentTestCase(TestCase):
+    fixed_date = datetime(2025, 3, 3).date()
+
+    def setUp(self):
+        self.user = User.objects.create(
+            email="testuser@example.com",
+            password="password123"
+        )
+        self.book = Book.objects.create(
+            title="Test Book",
+            author="Author",
+            inventory=30,
+            daily_fee=5.00
+        )
+        self.borrowing = Borrowing.objects.create(
+            user=self.user,
+            book=self.book,
+            borrow_date=self.fixed_date,
+            expected_return_date=self.fixed_date + timedelta(days=7)
+        )
+        self.payment_pending = Payment.objects.create(
+            borrowing=self.borrowing,
+            session_url="http://stripe.com/session/1",
+            session_id="sess_1",
+            session_expires_at=self.fixed_date + timedelta(hours=1),
+            money_to_pay=15.00,
+            status=Payment.Status.PENDING,
+            type=Payment.Type.PAYMENT
+        )
+        self.payment_paid = Payment.objects.create(
+            borrowing=self.borrowing,
+            session_url="http://stripe.com/session/2",
+            session_id="sess_2",
+            session_expires_at=self.fixed_date + timedelta(hours=1),
+            money_to_pay=15.00,
+            status=Payment.Status.PAID,
+            type=Payment.Type.PAYMENT
+        )
+
+    @patch('payment_service.tasks.send_telegram_message')
+    def test_notify_successful_payment_success(self, mock_send_telegram):
+        mock_send_telegram.return_value = True
+
+        result = notify_successful_payment(self.payment_paid.id)
+
+        expected_message = (
+            f"Payment Successfully Completed!\n"
+            f"Payment ID: {self.payment_paid.id}\n"
+            f"Borrowing ID: {self.borrowing.id}\n"
+            f"User: {self.user.email}\n"
+            f"Book: {self.book.title}\n"
+            f"Amount Paid: ${self.payment_paid.money_to_pay:.2f}\n"
+            f"Type: {self.payment_paid.type}\n"
+            f"Status: {self.payment_paid.status}\n"
+            f"Payment Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+        )
+
+        mock_send_telegram.assert_called_once_with(expected_message)
+
+    @patch('payment_service.tasks.send_telegram_message')
+    def test_notify_successful_payment_status_not_paid(
+            self,
+            mock_send_telegram
+    ):
+        mock_send_telegram.return_value = True
+        result = notify_successful_payment(self.payment_pending.id)
+        mock_send_telegram.assert_not_called()
+
+    @patch('payment_service.tasks.send_telegram_message')
+    def test_notify_successful_payment_payment_not_found(
+            self,
+            mock_send_telegram
+    ):
+        mock_send_telegram.return_value = True
+
+        with self.assertRaises(Exception):
+            notify_successful_payment(999)
+
+    @patch('payment_service.tasks.send_telegram_message')
+    def test_notify_successful_payment_send_failed(self, mock_send_telegram):
+        mock_send_telegram.return_value = False
+
+        with self.assertRaises(Exception):
+            notify_successful_payment(self.payment_paid.id)
+
+        mock_send_telegram.assert_called_once()
