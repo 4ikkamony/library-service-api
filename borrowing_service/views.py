@@ -117,16 +117,26 @@ class BorrowingViewSet(
 
     @extend_schema(
         description=(
-            "Mark a borrowed book as returned. "
-            "This action sets the actual return date to the current date and "
-            "increments the book's inventory. "
-            "If the book is already returned, it responds with an error."
+            "Mark a borrowed book as returned. This action sets the actual return date "
+            "to the current date and increments the book's inventory. If the book "
+            "is returned late, a FINE payment session is created, "
+            "and the response includes a payment ID and a Stripe session URL."
         ),
         responses={
-            200: OpenApiExample(
-                "Success",
-                value={"message": "Book returned successfully"},
-            ),
+            200: [
+                OpenApiExample(
+                    "On-Time Return",
+                    value={"message": "Book returned successfully"},
+                ),
+                OpenApiExample(
+                    "Late Return with Fine",
+                    value={
+                        "message": "The book was returned late, you must pay a fine.",
+                        "payment_id": 123,
+                        "session_url": "https://stripe.example.com/session/abc123",
+                    },
+                ),
+            ],
             400: OpenApiExample(
                 "Already Returned",
                 value={"error": "This book is already returned."},
