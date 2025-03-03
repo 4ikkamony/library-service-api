@@ -17,10 +17,14 @@ from borrowing_service.serializers import (
 
 user = get_user_model()
 
+
 class BorrowingSerializerTest(TestCase):
     def setUp(self):
         self.user = user.objects.create_user(
-            email="testuser@test.com", first_name="Test", last_name="User", password="password"
+            email="testuser@test.com",
+            first_name="Test",
+            last_name="User",
+            password="password",
         )
         self.book = Book.objects.create(
             title="Test Book", author="Test Author", daily_fee=10, inventory=5
@@ -36,7 +40,9 @@ class BorrowingSerializerTest(TestCase):
             "book": self.book.id,
             "expected_return_date": timezone.now().date() + timedelta(days=7),
         }
-        serializer = BorrowingCreateSerializer(data=data, context={"request": self.mock_request()})
+        serializer = BorrowingCreateSerializer(
+            data=data, context={"request": self.mock_request()}
+        )
         self.assertTrue(serializer.is_valid(), serializer.errors)
 
     def test_borrowing_create_with_pending_payment(self):
@@ -49,9 +55,13 @@ class BorrowingSerializerTest(TestCase):
             "book": self.book.id,
             "expected_return_date": timezone.now().date() + timedelta(days=7),
         }
-        serializer = BorrowingCreateSerializer(data=data, context={"request": self.mock_request(user=self.borrowing.user)})
+        serializer = BorrowingCreateSerializer(
+            data=data, context={"request": self.mock_request(user=self.borrowing.user)}
+        )
         self.assertFalse(serializer.is_valid())
-        self.assertIn("You cannot borrow new books with pending payment.", str(serializer.errors))
+        self.assertIn(
+            "You cannot borrow new books with pending payment.", str(serializer.errors)
+        )
 
     def test_borrowing_create_book_out_of_stock(self):
         self.book.inventory = 0
@@ -60,7 +70,9 @@ class BorrowingSerializerTest(TestCase):
             "book": self.book.id,
             "expected_return_date": timezone.now().date() + timedelta(days=7),
         }
-        serializer = BorrowingCreateSerializer(data=data, context={"request": self.mock_request()})
+        serializer = BorrowingCreateSerializer(
+            data=data, context={"request": self.mock_request()}
+        )
         self.assertFalse(serializer.is_valid())
         self.assertIn("Selected book is out of stock.", str(serializer.errors))
 
@@ -69,7 +81,9 @@ class BorrowingSerializerTest(TestCase):
             "book": self.book.id,
             "expected_return_date": timezone.now().date() + timedelta(days=7),
         }
-        serializer = BorrowingCreateSerializer(data=data, context={"request": self.mock_request()})
+        serializer = BorrowingCreateSerializer(
+            data=data, context={"request": self.mock_request()}
+        )
         self.assertTrue(serializer.is_valid(), serializer.errors)
 
     def test_borrowing_create_invalid_return_date(self):
@@ -77,9 +91,14 @@ class BorrowingSerializerTest(TestCase):
             "book": self.book.id,
             "expected_return_date": timezone.now().date() - timedelta(days=1),
         }
-        serializer = BorrowingCreateSerializer(data=data, context={"request": self.mock_request()})
+        serializer = BorrowingCreateSerializer(
+            data=data, context={"request": self.mock_request()}
+        )
         self.assertFalse(serializer.is_valid())
-        self.assertIn("Expected return date cannot be earlier than borrow date.", str(serializer.errors))
+        self.assertIn(
+            "Expected return date cannot be earlier than borrow date.",
+            str(serializer.errors),
+        )
 
     def test_borrowing_detail_serializer(self):
         serializer = BorrowingDetailSerializer(instance=self.borrowing)
@@ -101,8 +120,7 @@ class BorrowingSerializerTest(TestCase):
         request = Mock()
         if user is None:
             user = get_user_model().objects.create_user(
-                email="testuser@example.com",
-                password="password123"
+                email="testuser@example.com", password="password123"
             )
         request.user = user
         return request
