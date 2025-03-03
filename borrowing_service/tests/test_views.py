@@ -56,9 +56,13 @@ class BorrowingViewSetTest(APITestCase):
         self.assertIn("id", response.data)
         self.assertIn("expected_return_date", response.data)
         self.assertIn("book", response.data)
+        self.assertIn("payment_id", response.data)
+        self.assertIn("session_url", response.data)
 
         self.assertEqual(response.data["expected_return_date"], "2025-03-10")
         self.assertEqual(response.data["book"], self.book.id)
+        self.assertEqual(response.data["payment_id"], 1)
+        self.assertEqual(response.data["session_url"], "mocked_url")
 
     def test_return_borrowing_late_with_fine(self):
         borrowing = Borrowing.objects.create(
