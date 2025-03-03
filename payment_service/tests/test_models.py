@@ -13,6 +13,7 @@ from payment_service.models import Payment
 
 User = get_user_model()
 
+
 class PaymentModelTest(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
@@ -32,7 +33,7 @@ class PaymentModelTest(TestCase):
         self.borrowing = Borrowing.objects.create(
             user=self.user,
             book=self.book,
-            expected_return_date=self.borrow_date + timezone.timedelta(days=7)
+            expected_return_date=self.borrow_date + timezone.timedelta(days=7),
         )
 
     def test_valid_money_to_pay(self):
@@ -43,7 +44,7 @@ class PaymentModelTest(TestCase):
             session_id="cs_test_123456789",
             session_expires_at=timezone.now() + timezone.timedelta(hours=1),
             money_to_pay=Decimal("25.50"),
-            type=Payment.Type.PAYMENT
+            type=Payment.Type.PAYMENT,
         )
 
         payment.full_clean()
@@ -60,7 +61,7 @@ class PaymentModelTest(TestCase):
             session_id="cs_test_123456789",
             session_expires_at=timezone.now() + timezone.timedelta(hours=1),
             money_to_pay=Decimal("-10.50"),
-            type=Payment.Type.FINE
+            type=Payment.Type.FINE,
         )
 
         with self.assertRaises(ValidationError):
@@ -77,7 +78,7 @@ class PaymentModelTest(TestCase):
             session_id="cs_test_123456789",
             session_expires_at=timezone.now() + timezone.timedelta(hours=1),
             money_to_pay=Decimal("0.00"),
-            type=Payment.Type.PAYMENT
+            type=Payment.Type.PAYMENT,
         )
 
         with self.assertRaises(ValidationError):
