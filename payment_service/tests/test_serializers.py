@@ -13,7 +13,9 @@ from payment_service.serializers import PaymentSerializer
 
 class PaymentSerializerTest(TestCase):
     def setUp(self):
-        self.book = Book.objects.create(title="Test Book", inventory=5, daily_fee=Decimal("1.50"))
+        self.book = Book.objects.create(
+            title="Test Book", inventory=5, daily_fee=Decimal("1.50")
+        )
 
         User = get_user_model()
         self.user = User.objects.create(email="testuser@mail.com")
@@ -31,7 +33,7 @@ class PaymentSerializerTest(TestCase):
             session_expires_at=timezone.now() + datetime.timedelta(days=1),
             money_to_pay=Decimal("10.00"),
             status=Payment.Status.PENDING,
-            type=Payment.Type.PAYMENT
+            type=Payment.Type.PAYMENT,
         )
 
     def test_valid_serializer(self):
