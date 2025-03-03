@@ -58,7 +58,6 @@ class TodayOverdueBorrowingsTest(TestCase):
         self.assertIn(self.borrowing, overdue_borrowings)
         self.assertEqual(overdue_borrowings.count(), 1)
 
-
     def test_no_overdue_borrowings(self):
         non_overdue_time = self.fixed_now + timedelta(days=2)
         self.mock_now.return_value = non_overdue_time
