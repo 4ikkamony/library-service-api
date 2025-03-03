@@ -69,3 +69,20 @@ class PaymentModelTest(TestCase):
             payment.save()
 
         self.assertEqual(Payment.objects.count(), 0)
+
+    def test_zero_money_to_pay(self):
+        """Test that a payment with zero money_to_pay raises a ValidationError"""
+        payment = Payment(
+            borrowing=self.borrowing,
+            session_url="https://example.com/checkout",
+            session_id="cs_test_123456789",
+            session_expires_at=timezone.now() + timezone.timedelta(hours=1),
+            money_to_pay=Decimal("0.00"),
+            type=Payment.Type.PAYMENT,
+        )
+
+        with self.assertRaises(ValidationError):
+            payment.full_clean()
+            payment.save()
+
+        self.assertEqual(Payment.objects.count(), 0)
