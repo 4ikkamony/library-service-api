@@ -65,8 +65,8 @@ class SuccessPaymentView(APIView):
             payment = get_object_or_404(Payment, session_id=session_id)
 
             if (
-                    payment.borrowing.user.id != request.user.id
-                    and not request.user.is_superuser
+                payment.borrowing.user.id != request.user.id
+                and not request.user.is_superuser
             ):
                 return Response(
                     {"error": "You don't have permission to view this payment"},

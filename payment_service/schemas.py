@@ -17,11 +17,11 @@ list_payment_schema = extend_schema(
                         "properties": {"error": {"type": "string"}},
                     }
                 }
-            }
+            },
         },
     },
     description="List all payments "
-                "(staff users see all, regular users see only their own).",
+    "(staff users see all, regular users see only their own).",
 )
 
 detail_payment_schema = extend_schema(
@@ -36,7 +36,7 @@ detail_payment_schema = extend_schema(
                         "properties": {"error": {"type": "string"}},
                     }
                 }
-            }
+            },
         },
         403: {
             "description": "Permission denied",
@@ -99,7 +99,7 @@ success_payment_schema = extend_schema(
                         "properties": {"error": {"type": "string"}},
                     }
                 }
-            }
+            },
         },
         403: {
             "description": "Permission denied",
@@ -148,7 +148,7 @@ cansel_payment_schema = extend_schema(
                         "properties": {"error": {"type": "string"}},
                     }
                 }
-            }
+            },
         },
     },
 )
@@ -185,7 +185,7 @@ renew_stripe_session_schema = extend_schema(
         },
         400: {
             "description": "Bad request (missing payment_id, "
-                           "payment not expired, Stripe error)",
+            "payment not expired, Stripe error)",
             "content": {
                 "application/json": {
                     "schema": {
@@ -204,7 +204,7 @@ renew_stripe_session_schema = extend_schema(
                         "properties": {"error": {"type": "string"}},
                     }
                 }
-            }
+            },
         },
         403: {
             "description": "Permission denied",
