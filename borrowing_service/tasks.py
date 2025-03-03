@@ -2,30 +2,39 @@ import logging
 
 from celery import shared_task
 
+from borrowing_service.models import Borrowing
 from borrowing_service.utils import today_overdue_borrowings
 from notifications_service.utils import send_telegram_message
 
 # Used for Celery logging via:
 # celery -A core.celery_config worker -l info
 # Can be used in core/settings.py if needed
-
 logger = logging.getLogger(__name__)
 
 
 @shared_task(max_retries=3, bind=True)
-def notify_new_borrowing(self, borrowing_id, user_email, book_title) -> None:
+def notify_new_borrowing(self, borrowing_id) -> None:
     try:
         logger.info(f"Processing notify_new_borrowing for borrowing_id={borrowing_id}")
+        borrowing = Borrowing.objects.get(id=borrowing_id)
+
         message = (
             f"New Borrowing Created!\n"
-            f"Borrowing ID: {borrowing_id}\n"
-            f"User: {user_email}\n"
-            f"Book: {book_title}"
+            f"Borrowing ID: {borrowing.id}\n"
+            f"User: {borrowing.user.email}\n"
+            f"Book: {borrowing.book.title}\n"
+            f"Borrow Date: {borrowing.borrow_date}\n"
+            f"Expected Return Date: {borrowing.expected_return_date}"
         )
+
         success = send_telegram_message(message)
         if not success:
-            logger.error("Failed to send Telegram notification")
+            logger.error(f"Failed to send notification for borrowing {borrowing.id}")
             raise Exception("Failed to send Telegram notification")
+        logger.info(f"Notification sent for new borrowing {borrowing.id}")
+    except Borrowing.DoesNotExist:
+        logger.error(f"Borrowing with ID {borrowing_id} not found")
+        raise Exception(f"Borrowing with ID {borrowing_id} not found")
     except Exception as exc:
         logger.error(f"Error in notify_new_borrowing: {str(exc)}")
         raise self.retry(exc=exc, countdown=60)
