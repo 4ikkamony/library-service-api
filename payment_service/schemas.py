@@ -1,12 +1,8 @@
 from drf_spectacular.utils import (
     extend_schema,
     OpenApiParameter,
-    inline_serializer,
-    OpenApiResponse,
-    OpenApiExample,
-    OpenApiTypes,
 )
-from rest_framework import serializers
+
 from payment_service.serializers import PaymentSerializer
 
 success_payment_schema = extend_schema(
@@ -48,6 +44,17 @@ success_payment_schema = extend_schema(
                 },
             },
         },
+        401: {
+            "description": "Unauthorized client",
+            "content": {
+                "application/json": {
+                    "schema": {
+                        "type": "object",
+                        "properties": {"error": {"type": "string"}},
+                    }
+                }
+            }
+        },
         403: {
             "description": "Permission denied",
             "content": {
@@ -85,7 +92,18 @@ cansel_payment_schema = extend_schema(
             "type": "object",
             "properties": {"message": {"type": "string"}},
             "example": {"message": "Payment was canceled. No charges were made."},
-        }
+        },
+        401: {
+            "description": "Unauthorized client",
+            "content": {
+                "application/json": {
+                    "schema": {
+                        "type": "object",
+                        "properties": {"error": {"type": "string"}},
+                    }
+                }
+            }
+        },
     },
 )
 
@@ -121,7 +139,7 @@ renew_stripe_session_schema = extend_schema(
         },
         400: {
             "description": "Bad request (missing payment_id, "
-            "payment not expired, Stripe error)",
+                           "payment not expired, Stripe error)",
             "content": {
                 "application/json": {
                     "schema": {
@@ -130,6 +148,17 @@ renew_stripe_session_schema = extend_schema(
                     },
                 },
             },
+        },
+        401: {
+            "description": "Unauthorized client",
+            "content": {
+                "application/json": {
+                    "schema": {
+                        "type": "object",
+                        "properties": {"error": {"type": "string"}},
+                    }
+                }
+            }
         },
         403: {
             "description": "Permission denied",
