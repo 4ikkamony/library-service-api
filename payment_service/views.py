@@ -4,10 +4,11 @@ from django.db import transaction
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from rest_framework import status, generics
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
-from payment_service.models import Payment, datetime_from_timestamp
+
+from payment_service.models import Payment
 from payment_service.schemas import (
     list_payment_schema,
     success_payment_schema,
@@ -16,7 +17,7 @@ from payment_service.schemas import (
     detail_payment_schema,
 )
 from payment_service.serializers import PaymentSerializer, PaymentListSerializer
-from payment_service.utils import create_stripe_session
+from payment_service.utils import create_stripe_session, datetime_from_timestamp
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
@@ -76,15 +77,16 @@ class SuccessPaymentView(APIView):
             checkout_session = stripe.checkout.Session.retrieve(session_id)
 
             if checkout_session.payment_status == "paid":
-                payment.status = Payment.Status.PAID
-                payment.save()
+                with transaction.atomic():
+                    payment.status = Payment.Status.PAID
+                    payment.save()
 
-                if payment.type == Payment.Type.PAYMENT:
-                    payment.borrowing.is_active = True
-                    payment.borrowing.save()
-                elif payment.type == Payment.Type.FINE:
-                    payment.borrowing.is_active = False
-                    payment.borrowing.save()
+                    if payment.type == Payment.Type.PAYMENT:
+                        payment.borrowing.is_active = True
+                        payment.borrowing.save()
+                    elif payment.type == Payment.Type.FINE:
+                        payment.borrowing.is_active = False
+                        payment.borrowing.save()
 
                 return Response(
                     {
