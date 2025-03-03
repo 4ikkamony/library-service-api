@@ -36,9 +36,7 @@ def notify_new_payment(self, payment_id):
     Task to notify successful Payment
     """
     try:
-        logger.info(
-            f"Processing notify_new_payment for payment_id={payment_id}"
-            )
+        logger.info(f"Processing notify_new_payment for payment_id={payment_id}")
         payment = Payment.objects.get(id=payment_id)
 
         message = (
@@ -54,9 +52,7 @@ def notify_new_payment(self, payment_id):
 
         success = send_telegram_message(message)
         if not success:
-            logger.error(
-                f"Failed to send notification for payment {payment.id}"
-                )
+            logger.error(f"Failed to send notification for payment {payment.id}")
             raise Exception("Failed to send Telegram notification")
         logger.info(f"Notification sent for new payment {payment.id}")
     except Payment.DoesNotExist:
@@ -73,15 +69,13 @@ def notify_successful_payment(self, payment_id):
     Task to notify about a successful payment (status 'PAID').
     """
     try:
-        logger.info(
-            f"Processing notify_successful_payment for payment_id={payment_id}"
-            )
+        logger.info(f"Processing notify_successful_payment for payment_id={payment_id}")
         payment = Payment.objects.get(id=payment_id)
 
         if payment.status != Payment.Status.PAID:
             logger.warning(
                 f"Payment {payment_id} status is not 'PAID', skipping notification"
-                )
+            )
             return
 
         message = (
@@ -100,7 +94,7 @@ def notify_successful_payment(self, payment_id):
         if not success:
             logger.error(
                 f"Failed to send notification for successful payment {payment.id}"
-                )
+            )
             raise Exception("Failed to send Telegram notification")
         logger.info(f"Notification sent for successful payment {payment.id}")
     except Payment.DoesNotExist:
