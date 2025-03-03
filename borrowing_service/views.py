@@ -1,3 +1,4 @@
+from django.db import transaction
 from django.utils import timezone
 
 from rest_framework import mixins, status
@@ -21,6 +22,8 @@ from borrowing_service.serializers import (
     BorrowingCreateSerializer,
     BorrowingReturnSerializer,
 )
+from payment_service.models import Payment
+from payment_service.utils import create_payment_session
 
 
 @extend_schema_view(
@@ -141,12 +144,29 @@ class BorrowingViewSet(
         borrowing = self.get_object()
 
         if borrowing.actual_return_date:
-            return Response({"error": "This book is already returned."})
+            return Response(
+                {"error": "This book is already returned."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-        borrowing.actual_return_date = timezone.now().date()
-        borrowing.book.inventory += 1
-        borrowing.book.save()
-        borrowing.save()
+        with transaction.atomic():
+            borrowing.actual_return_date = timezone.now().date()
+            borrowing.book.inventory += 1
+
+            if borrowing.actual_return_date > borrowing.expected_return_date:
+                payment, session_url = create_payment_session(
+                    borrowing, request, Payment.Type.FINE
+                )
+                response_data = {
+                    "message": "The book was returned late, you must pay a fine.",
+                    "payment_id": payment.id,
+                    "session_url": session_url,
+                }
+                return Response(response_data, status=status.HTTP_200_OK)
+
+            borrowing.book.save()
+            borrowing.save()
+
         return Response(
             {"message": "Book returned successfully"}, status=status.HTTP_200_OK
         )

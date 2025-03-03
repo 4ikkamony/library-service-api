@@ -5,6 +5,7 @@ from rest_framework import serializers
 from borrowing_service.models import Borrowing
 from book_service.models import Book
 from payment_service.models import Payment
+from payment_service.utils import create_payment_session
 from user.models import User
 
 
@@ -22,6 +23,7 @@ class BorrowingBookSerializer(serializers.ModelSerializer):
 
 class BorrowingCreateSerializer(serializers.ModelSerializer):
     book = serializers.PrimaryKeyRelatedField(queryset=Book.objects.all())
+    expected_return_date = serializers.DateField(required=True)
 
     class Meta:
         model = Borrowing
@@ -31,23 +33,54 @@ class BorrowingCreateSerializer(serializers.ModelSerializer):
             "book",
         )
 
-    def validate_book(self, value):
-        if value.inventory <= 0:
+    def validate(self, data):
+        user = self.context["request"].user
+        pending_payments = Payment.objects.filter(
+            borrowing__user=user, status=Payment.Status.PENDING
+        )
+
+        if pending_payments.exists():
+            raise serializers.ValidationError(
+                "You cannot borrow new books with pending payment."
+            )
+
+        book = data.get("book")
+        if book and book.inventory <= 0:
             raise serializers.ValidationError("Selected book is out of stock.")
-        return value
 
-    def validate_borrowing_date(self, data):
+        expected_return_date = data.get("expected_return_date")
         today = timezone.now().date()
-        borrow_date = today
-
-        if data["expected_return_date"] < borrow_date:
+        if expected_return_date and expected_return_date < today:
             raise serializers.ValidationError(
                 "Expected return date cannot be earlier than borrow date."
             )
 
+        return data
+
     def create(self, validated_data):
+        request = self.context["request"]
         with transaction.atomic():
-            return super().create(validated_data)
+            borrowing = Borrowing.objects.create(**validated_data)
+            payment, session_url = create_payment_session(
+                borrowing, request, Payment.Type.PAYMENT
+            )
+
+            return borrowing
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+
+        payment = Payment.objects.filter(borrowing=instance).first()
+        session_url = payment.session_url if payment else None
+
+        data.update(
+            {
+                "payment_id": payment.id if payment else None,
+                "session_url": session_url,
+            }
+        )
+
+        return data
 
 
 class BorrowingPaymentListSerializer(serializers.ModelSerializer):

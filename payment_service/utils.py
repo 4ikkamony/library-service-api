@@ -33,12 +33,11 @@ def create_payment_session(borrowing, request, payment_type=Payment.Type.PAYMENT
     Returns:
         tuple: (Payment object, Stripe session URL)
     """
-    stripe.api_key = settings.STRIPE_SECRET_KEY
 
     if payment_type == Payment.Type.PAYMENT:
         money_to_pay = Decimal(
             borrowing.book.daily_fee
-            * (borrowing.actual_return_date - borrowing.borrow_date).days
+            * (borrowing.expected_return_date - borrowing.borrow_date).days
         )
         payment_description = f"Book rental: {borrowing.book.title}"
 
@@ -57,25 +56,9 @@ def create_payment_session(borrowing, request, payment_type=Payment.Type.PAYMENT
     cancel_url = request.build_absolute_uri(reverse("payment_service:payment-cancel"))
 
     try:
-        checkout_session = stripe.checkout.Session.create(
-            payment_method_types=["card"],
-            line_items=[
-                {
-                    "price_data": {
-                        "currency": "usd",
-                        "product_data": {
-                            "name": payment_description,
-                        },
-                        "unit_amount": int(money_to_pay * 100),
-                    },
-                    "quantity": 1,
-                },
-            ],
-            mode="payment",
-            success_url=success_url,
-            cancel_url=cancel_url,
+        checkout_session = create_stripe_session(
+            payment_description, money_to_pay, success_url, cancel_url
         )
-
     except stripe.error.StripeError as e:
         raise e
 
@@ -90,3 +73,26 @@ def create_payment_session(borrowing, request, payment_type=Payment.Type.PAYMENT
     )
 
     return payment, checkout_session.url
+
+
+def create_stripe_session(product_description, money_to_pay, success_url, cancel_url):
+    stripe.api_key = settings.STRIPE_SECRET_KEY
+
+    return stripe.checkout.Session.create(
+        payment_method_types=["card"],
+        line_items=[
+            {
+                "price_data": {
+                    "currency": "usd",
+                    "product_data": {
+                        "name": product_description,
+                    },
+                    "unit_amount": int(money_to_pay * 100),
+                },
+                "quantity": 1,
+            },
+        ],
+        mode="payment",
+        success_url=success_url,
+        cancel_url=cancel_url,
+    )
