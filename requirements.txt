@@ -13,3 +13,4 @@ celery==5.4.0
 requests==2.32.3
 redis==5.2.1
 stripe==11.6.0
+django-extensions==3.2.3
