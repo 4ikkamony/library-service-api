@@ -3,7 +3,42 @@ from drf_spectacular.utils import (
     OpenApiParameter,
 )
 
-from payment_service.serializers import PaymentSerializer
+from payment_service.serializers import PaymentSerializer, PaymentListSerializer
+
+list_payment_schema = extend_schema(
+    responses={
+        200: PaymentListSerializer(many=True),
+        401: {
+            "description": "Unauthorized client",
+            "content": {
+                "application/json": {
+                    "schema": {
+                        "type": "object",
+                        "properties": {"error": {"type": "string"}},
+                    }
+                }
+            }
+        },
+    },
+    description="List all payments (staff users see all, regular users see only their own).",
+)
+
+detail_payment_schema = extend_schema(
+    responses={
+        200: PaymentSerializer(many=False),
+        401: {
+            "description": "Unauthorized client",
+            "content": {
+                "application/json": {
+                    "schema": {
+                        "type": "object",
+                        "properties": {"error": {"type": "string"}},
+                    }
+                }
+            }
+        },
+    }
+)
 
 success_payment_schema = extend_schema(
     description="Check successful Stripe payment and update payment status",
@@ -27,7 +62,6 @@ success_payment_schema = extend_schema(
                                 "type": "string",
                                 "example": "Payment successful",
                             },
-                            "payment": PaymentSerializer().get_fields()["id"].parent,
                         },
                     },
                 },

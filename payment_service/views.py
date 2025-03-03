@@ -9,9 +9,11 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from payment_service.models import Payment, datetime_from_timestamp
 from payment_service.schemas import (
+    list_payment_schema,
     success_payment_schema,
     cansel_payment_schema,
     renew_stripe_session_schema,
+    detail_payment_schema,
 )
 from payment_service.serializers import PaymentSerializer, PaymentListSerializer
 from payment_service.utils import create_stripe_session
@@ -19,6 +21,7 @@ from payment_service.utils import create_stripe_session
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
 
+@list_payment_schema
 class ListPaymentView(generics.ListAPIView):
     queryset = Payment.objects.all()
     serializer_class = PaymentListSerializer
@@ -32,6 +35,7 @@ class ListPaymentView(generics.ListAPIView):
             return queryset.filter(borrowing__user=self.request.user.id)
 
 
+@detail_payment_schema
 class DetailPaymentView(generics.RetrieveAPIView):
     queryset = Payment.objects.all()
     serializer_class = PaymentSerializer
@@ -45,10 +49,10 @@ class DetailPaymentView(generics.RetrieveAPIView):
             return queryset.filter(borrowing__user=self.request.user.id)
 
 
+@success_payment_schema
 class SuccessPaymentView(APIView):
     permission_classes = (IsAuthenticated,)
 
-    @success_payment_schema
     def post(self, request, *args, **kwargs):
         session_id = request.query_params.get("session_id")
 
@@ -61,8 +65,8 @@ class SuccessPaymentView(APIView):
             payment = get_object_or_404(Payment, session_id=session_id)
 
             if (
-                payment.borrowing.user.id != request.user.id
-                and not request.user.is_superuser
+                    payment.borrowing.user.id != request.user.id
+                    and not request.user.is_superuser
             ):
                 return Response(
                     {"error": "You don't have permission to view this payment"},
@@ -139,8 +143,8 @@ class RenewStripeSessionView(APIView):
             )
 
         success_url = (
-            request.build_absolute_uri(reverse("payment_service:payment-success"))
-            + "?session_id={CHECKOUT_SESSION_ID}"
+                request.build_absolute_uri(reverse("payment_service:payment-success"))
+                + "?session_id={CHECKOUT_SESSION_ID}"
         )
         cancel_url = request.build_absolute_uri(
             reverse("payment_service:payment-cancel")
