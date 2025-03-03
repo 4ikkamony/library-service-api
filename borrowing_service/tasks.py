@@ -28,6 +28,7 @@ def notify_new_borrowing(self, borrowing_id) -> None:
         )
 
         success = send_telegram_message(message)
+
         if not success:
             logger.error(f"Failed to send notification for borrowing {borrowing.id}")
             raise Exception("Failed to send Telegram notification")
