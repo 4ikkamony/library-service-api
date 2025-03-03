@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from unittest.mock import patch, Mock
-from payment_service.tasks import expire_payments
+from payment_service.tasks import expire_payments, notify_new_payment
 from payment_service.models import Payment
 from borrowing_service.models import Borrowing
 from book_service.models import Book
@@ -122,3 +122,89 @@ class ExpirePaymentsTestCase(TestCase):
         self.assertEqual(self.active_payment.status, Payment.Status.PENDING)
 
         self.mock_expired_sessions.assert_called_once()
+
+
+class NotifyNewPaymentTestCase(TestCase):
+    def setUp(self):
+        self.user = User.objects.create(
+            email="testuser@example.com",
+            password="testpass123"
+        )
+        self.book = Book.objects.create(
+            title="Test Book",
+            author="Test Author",
+            cover=Book.CoverType.HARD,
+            inventory=10,
+            daily_fee=1.50
+        )
+        self.borrowing = Borrowing.objects.create(
+            user=self.user,
+            book=self.book,
+            borrow_date=datetime.now().date(),
+            expected_return_date=datetime.now().date() + timedelta(days=7)
+        )
+        self.payment = Payment.objects.create(
+            borrowing=self.borrowing,
+            session_url="https://example.com/session",
+            session_id="test_session_123",
+            session_expires_at=datetime.now().date() + timedelta(days=1),
+            money_to_pay=15.00,
+            status=Payment.Status.PENDING,
+            type=Payment.Type.PAYMENT
+        )
+
+        self.mock_send_telegram = Mock(return_value=True)
+        self.patcher_send_telegram = patch(
+            "payment_service.tasks.send_telegram_message",
+            new=self.mock_send_telegram
+        )
+        self.patcher_send_telegram.start()
+
+    def tearDown(self):
+        self.patcher_send_telegram.stop()
+
+    def test_notify_new_payment_success(self):
+        try:
+            result = notify_new_payment(self.payment.id)
+        except Exception as e:
+            self.fail(f"Function raised unexpected exception: {str(e)}")
+
+        self.assertIsNone(result)
+
+        expected_message = (
+            "New Payment Created!\n"
+            f"Payment ID: {self.payment.id}\n"
+            f"Borrowing ID: {self.borrowing.id}\n"
+            f"User: {self.user.email}\n"
+            f"Book: {self.book.title}\n"
+            f"Amount to Pay: ${self.payment.money_to_pay:.2f}\n"
+            f"Type: {self.payment.type}\n"
+            f"Status: {self.payment.status}\n"
+        )
+        self.mock_send_telegram.assert_called_once_with(expected_message)
+
+    def test_notify_new_payment_not_found(self):
+        non_existent_id = 999
+
+        with self.assertRaises(Exception) as context:
+            notify_new_payment(non_existent_id)
+
+        self.assertEqual(
+            str(context.exception),
+            f"Payment with ID {non_existent_id} not found"
+        )
+
+        self.mock_send_telegram.assert_not_called()
+
+    def test_notify_new_payment_telegram_failure(self):
+        self.mock_send_telegram.return_value = False
+
+        with self.assertRaises(Exception) as context:
+            notify_new_payment(self.payment.id)
+
+        self.assertEqual(
+            str(context.exception),
+            "Failed to send Telegram notification"
+        )
+
+        self.mock_send_telegram.assert_called_once()
