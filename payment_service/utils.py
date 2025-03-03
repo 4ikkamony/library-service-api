@@ -51,8 +51,8 @@ def create_payment_session(borrowing, request, payment_type=Payment.Type.PAYMENT
         raise ValueError(f"Invalid payment type: {payment_type}")
 
     success_url = request.build_absolute_uri(
-        reverse("payment_service:payment-success") + "?session_id={CHECKOUT_SESSION_ID}"
-    )
+        reverse("payment_service:payment-success")
+    ) + "?session_id={CHECKOUT_SESSION_ID}"
     cancel_url = request.build_absolute_uri(reverse("payment_service:payment-cancel"))
 
     try:
