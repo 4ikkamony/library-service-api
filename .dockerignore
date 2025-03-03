@@ -1,0 +1,60 @@
+# Byte-compiled / optimized / DLL files
+**/__pycache__/
+**/*.py[cod]
+**/*.pytest_cache
+
+# C extensions
+*.so
+
+media/
+eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# docker
+Dockerfile
+docker-compose-local.yml
+docker-compose.yml
+.dockerignore
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+target/
+
+# Virtual environment
+**/*.env
+**/*.env.sample
+.venv/
+venv/
+
+#git
+.github
+.git
+.gitignore
+
+# pycharm
+.idea
+
+# celery
+celerybeat-schedule
+
+# sqlite
+*.sqlite3
+
+# other
+README.md
