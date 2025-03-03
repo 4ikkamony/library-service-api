@@ -91,6 +91,8 @@ class BorrowingViewSet(
             borrowing.actual_return_date = timezone.now().date()
             borrowing.book.inventory += 1
 
+            response_data = {"message": "Book returned successfully"}
+
             if borrowing.actual_return_date > borrowing.expected_return_date:
                 payment, session_url = create_payment_session(
                     borrowing, request, Payment.Type.FINE
@@ -100,14 +102,12 @@ class BorrowingViewSet(
                     "payment_id": payment.id,
                     "session_url": session_url,
                 }
-                return Response(response_data, status=status.HTTP_200_OK)
 
             borrowing.book.save()
             borrowing.save()
 
-        return Response(
-            {"message": "Book returned successfully"}, status=status.HTTP_200_OK
-        )
+        return Response(response_data, status=status.HTTP_200_OK)
+
 
     def perform_create(self, serializer):
         user = self.request.user
