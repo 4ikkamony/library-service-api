@@ -1,3 +1,4 @@
+import datetime
 from datetime import datetime
 from decimal import Decimal
 
@@ -7,7 +8,7 @@ from django.utils import timezone
 from django.conf import settings
 from django.urls import reverse
 
-from payment_service.models import Payment, datetime_from_timestamp
+from payment_service.models import Payment
 
 
 def expired_sessions() -> tuple[datetime, QuerySet]:
@@ -96,3 +97,7 @@ def create_stripe_session(product_description, money_to_pay, success_url, cancel
         success_url=success_url,
         cancel_url=cancel_url,
     )
+
+
+def datetime_from_timestamp(timestamp: int):
+    return datetime.datetime.fromtimestamp(timestamp, datetime.timezone.utc)

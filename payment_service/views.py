@@ -7,7 +7,7 @@ from rest_framework import status, generics
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
-from payment_service.models import Payment, datetime_from_timestamp
+from payment_service.models import Payment
 from payment_service.schemas import (
     list_payment_schema,
     success_payment_schema,
@@ -16,7 +16,7 @@ from payment_service.schemas import (
     detail_payment_schema,
 )
 from payment_service.serializers import PaymentSerializer, PaymentListSerializer
-from payment_service.utils import create_stripe_session
+from payment_service.utils import create_stripe_session, datetime_from_timestamp
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 

@@ -1,14 +1,8 @@
-import datetime
-
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
 
 from borrowing_service.models import Borrowing
-
-
-def datetime_from_timestamp(timestamp: int):
-    return datetime.datetime.fromtimestamp(timestamp, datetime.timezone.utc)
 
 
 class Payment(models.Model):
