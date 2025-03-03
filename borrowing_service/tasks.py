@@ -15,7 +15,9 @@ logger = logging.getLogger(__name__)
 @shared_task(max_retries=3, bind=True)
 def notify_new_borrowing(self, borrowing_id) -> None:
     try:
-        logger.info(f"Processing notify_new_borrowing for borrowing_id={borrowing_id}")
+        logger.info(
+            f"Processing notify_new_borrowing for borrowing_id={borrowing_id}"
+        )
         borrowing = Borrowing.objects.get(id=borrowing_id)
 
         message = (
@@ -28,8 +30,11 @@ def notify_new_borrowing(self, borrowing_id) -> None:
         )
 
         success = send_telegram_message(message)
+
         if not success:
-            logger.error(f"Failed to send notification for borrowing {borrowing.id}")
+            logger.error(
+                f"Failed to send notification for borrowing {borrowing.id}"
+            )
             raise Exception("Failed to send Telegram notification")
         logger.info(f"Notification sent for new borrowing {borrowing.id}")
     except Borrowing.DoesNotExist:
@@ -53,7 +58,9 @@ def check_overdue_borrowings(self):
             message = "No borrowings overdue today!"
             success = send_telegram_message(message)
             if not success:
-                logger.error("Failed to send 'no overdue borrowings' notification")
+                logger.error(
+                    "Failed to send 'no overdue borrowings' notification"
+                )
                 raise Exception("Failed to send Telegram notification")
             logger.info("No overdue borrowings found, notification sent")
             return
