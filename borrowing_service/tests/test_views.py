@@ -65,12 +65,16 @@ class BorrowingViewSetTest(APITestCase):
         self.assertEqual(response.data["session_url"], "mocked_url")
 
     def test_return_borrowing_late_with_fine(self):
+        self.mock_now.return_value = self.fixed_now
+
         borrowing = Borrowing.objects.create(
             user=self.user,
             book=self.book,
-            expected_return_date=(timezone.now() + timedelta(days=1)).date(),
+            expected_return_date=(self.fixed_now + timedelta(days=1)).date(),
         )
-        self.mock_now.return_value = timezone.now() + timedelta(days=3)
+
+        self.mock_now.return_value = self.fixed_now + timedelta(days=5)
+
         response = self.client.post(f"/api/borrowings/{borrowing.id}/return/")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("payment_id", response.data)
