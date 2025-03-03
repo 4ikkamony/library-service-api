@@ -3,6 +3,7 @@ import requests
 import logging
 from django.conf import settings
 
+#  all logs are going through StreamHandler in console when Celery is running
 logger = logging.getLogger(__name__)
 
 
