@@ -34,3 +34,6 @@ class Payment(models.Model):
     def save(self, *args, **kwargs):
         self.clean()
         super().save(*args, **kwargs)
+
+    class Meta:
+        ordering = ["-session_expires_at"]

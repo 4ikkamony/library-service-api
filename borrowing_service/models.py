@@ -42,3 +42,6 @@ class Borrowing(models.Model):
             f"Borrowing {self.book} by {self.user} on {self.borrow_date}. "
             f"Expected return date {self.expected_return_date}"
         )
+
+    class Meta:
+        ordering = ["-borrow_date"]
