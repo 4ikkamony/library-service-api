@@ -95,7 +95,7 @@ class TestUtils(TestCase):
         # Check that the current time is correct (ignoring seconds and microseconds)
         self.assertEqual(
             current_time.replace(second=0, microsecond=0),
-            self.current_time.replace(second=0, microsecond=0)
+            self.current_time.replace(second=0, microsecond=0),
         )
 
     def test_expired_sessions_no_expired_payments(self):
@@ -136,7 +136,7 @@ class TestUtils(TestCase):
         mock_stripe_session.return_value = MagicMock(
             id="test_session_id",
             expires_at=self.future_time.timestamp(),
-            url="http://stripe.com/session"
+            url="http://stripe.com/session",
         )
         mock_create.return_value = MagicMock()
 
@@ -208,7 +208,7 @@ class TestUtils(TestCase):
         mock_stripe_session.return_value = MagicMock(
             id="test_session_id",
             expires_at=self.future_time.timestamp(),
-            url="http://stripe.com/session"
+            url="http://stripe.com/session",
         )
         mock_create.return_value = MagicMock()
 
