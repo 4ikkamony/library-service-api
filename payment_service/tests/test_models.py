@@ -1,5 +1,6 @@
 from decimal import Decimal
 
+from django.core.exceptions import ValidationError
 from django.utils import timezone
 
 from django.test import TestCase
@@ -50,3 +51,20 @@ class PaymentModelTest(TestCase):
 
         self.assertEqual(Payment.objects.count(), 1)
         self.assertEqual(Payment.objects.first().money_to_pay, Decimal("25.50"))
+
+    def test_negative_money_to_pay(self):
+        """Test that a payment with negative money_to_pay raises a ValidationError"""
+        payment = Payment(
+            borrowing=self.borrowing,
+            session_url='https://example.com/checkout',
+            session_id='cs_test_123456789',
+            session_expires_at=timezone.now() + timezone.timedelta(hours=1),
+            money_to_pay=Decimal('-10.50'),
+            type=Payment.Type.FINE
+        )
+
+        with self.assertRaises(ValidationError):
+            payment.full_clean()
+            payment.save()
+
+        self.assertEqual(Payment.objects.count(), 0)
