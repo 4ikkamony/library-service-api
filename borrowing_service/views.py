@@ -187,4 +187,18 @@ class BorrowingViewSet(
         if not user.is_authenticated:
             raise ValidationError("User must be authenticated")
 
-        serializer.save(user=user)
+        with transaction.atomic():
+            borrowing = serializer.save(user=user)
+            payment, session_url = create_payment_session(
+                borrowing, self.request, Payment.Type.PAYMENT
+            )
+
+        response_data = BorrowingCreateSerializer(borrowing).data
+        response_data.update(
+            {
+                "payment_id": payment.id if payment else None,
+                "session_url": session_url if session_url else None,
+            }
+        )
+
+        return Response(response_data, status=status.HTTP_200_OK)

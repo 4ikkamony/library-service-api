@@ -57,31 +57,6 @@ class BorrowingCreateSerializer(serializers.ModelSerializer):
 
         return data
 
-    def create(self, validated_data):
-        request = self.context["request"]
-        with transaction.atomic():
-            borrowing = Borrowing.objects.create(**validated_data)
-            payment, session_url = create_payment_session(
-                borrowing, request, Payment.Type.PAYMENT
-            )
-
-            return borrowing
-
-    def to_representation(self, instance):
-        data = super().to_representation(instance)
-
-        payment = Payment.objects.filter(borrowing=instance).first()
-        session_url = payment.session_url if payment else None
-
-        data.update(
-            {
-                "payment_id": payment.id if payment else None,
-                "session_url": session_url,
-            }
-        )
-
-        return data
-
 
 class BorrowingPaymentListSerializer(serializers.ModelSerializer):
     class Meta:
