@@ -7,9 +7,4 @@ exclude =
     **migrations
     .venv
     tests
-    .github
-    .gitignore
-    .env
-    db.sqlite3
-    README.md
-    requirements.txt
+    settings
