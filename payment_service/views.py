@@ -18,6 +18,8 @@ from payment_service.schemas import (
 )
 from payment_service.serializers import PaymentSerializer, PaymentListSerializer
 from payment_service.utils import create_stripe_session, datetime_from_timestamp
+from payment_service.tasks import notify_successful_payment
+
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
@@ -87,6 +89,8 @@ class SuccessPaymentView(APIView):
                     elif payment.type == Payment.Type.FINE:
                         payment.borrowing.is_active = False
                         payment.borrowing.save()
+
+                notify_successful_payment(payment.id)
 
                 return Response(
                     {
