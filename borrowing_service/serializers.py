@@ -83,9 +83,29 @@ class BorrowingCreateSerializer(serializers.ModelSerializer):
         return data
 
 
+class BorrowingPaymentListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Payment
+        fields = (
+            "id",
+            "status",
+            "type",
+            "money_to_pay",
+            "session_url",
+            "session_id",
+        )
+        read_only_fields = (
+            "session_url",
+            "session_id",
+        )
+
+
 class BorrowingDetailSerializer(serializers.ModelSerializer):
     book = BorrowingBookSerializer(read_only=True)
     user = BorrowingUserSerializer(read_only=True)
+    payments = BorrowingPaymentListSerializer(
+        source="payment", many=True, read_only=True
+    )
 
     class Meta:
         model = Borrowing
@@ -96,16 +116,28 @@ class BorrowingDetailSerializer(serializers.ModelSerializer):
             "borrow_date",
             "expected_return_date",
             "actual_return_date",
+            "payments",
         )
 
 
 class BorrowingListSerializer(serializers.ModelSerializer):
     book = BorrowingBookSerializer(read_only=True)
     user = BorrowingUserSerializer(read_only=True)
+    payments = BorrowingPaymentListSerializer(
+        source="payment", many=True, read_only=True
+    )
 
     class Meta:
         model = Borrowing
-        fields = ("id", "user", "book", "expected_return_date", "actual_return_date")
+        fields = (
+            "id",
+            "user",
+            "book",
+            "borrow_date",
+            "expected_return_date",
+            "actual_return_date",
+            "payments",
+        )
 
 
 class BorrowingReturnSerializer(serializers.ModelSerializer):
