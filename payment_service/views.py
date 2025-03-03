@@ -3,15 +3,18 @@ from django.conf import settings
 from django.db import transaction
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
-from rest_framework import viewsets, status, generics
-from rest_framework.decorators import action
+from rest_framework import status, generics
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from payment_service.models import Payment, datetime_from_timestamp
+from payment_service.schemas import (
+    success_payment_schema,
+    cansel_payment_schema,
+    renew_stripe_session_schema,
+)
 from payment_service.serializers import PaymentSerializer, PaymentListSerializer
 from payment_service.utils import create_stripe_session
-from payment_service.schemas import success_payment_schema, cansel_payment_schema, renew_stripe_session_schema
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
