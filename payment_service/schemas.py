@@ -1,13 +1,56 @@
 from drf_spectacular.utils import (
     extend_schema,
     OpenApiParameter,
-    inline_serializer,
-    OpenApiResponse,
-    OpenApiExample,
-    OpenApiTypes,
 )
-from rest_framework import serializers
-from payment_service.serializers import PaymentSerializer
+
+from payment_service.serializers import PaymentSerializer, PaymentListSerializer
+
+list_payment_schema = extend_schema(
+    responses={
+        200: PaymentListSerializer(many=True),
+        401: {
+            "description": "Unauthorized client",
+            "content": {
+                "application/json": {
+                    "schema": {
+                        "type": "object",
+                        "properties": {"error": {"type": "string"}},
+                    }
+                }
+            },
+        },
+    },
+    description="List all payments "
+    "(staff users see all, regular users see only their own).",
+)
+
+detail_payment_schema = extend_schema(
+    responses={
+        200: PaymentSerializer(many=False),
+        401: {
+            "description": "Unauthorized client",
+            "content": {
+                "application/json": {
+                    "schema": {
+                        "type": "object",
+                        "properties": {"error": {"type": "string"}},
+                    }
+                }
+            },
+        },
+        403: {
+            "description": "Permission denied",
+            "content": {
+                "application/json": {
+                    "schema": {
+                        "type": "object",
+                        "properties": {"error": {"type": "string"}},
+                    },
+                },
+            },
+        },
+    }
+)
 
 success_payment_schema = extend_schema(
     description="Check successful Stripe payment and update payment status",
@@ -31,7 +74,6 @@ success_payment_schema = extend_schema(
                                 "type": "string",
                                 "example": "Payment successful",
                             },
-                            "payment": PaymentSerializer().get_fields()["id"].parent,
                         },
                     },
                 },
@@ -46,6 +88,17 @@ success_payment_schema = extend_schema(
                         "properties": {"error": {"type": "string"}},
                     },
                 },
+            },
+        },
+        401: {
+            "description": "Unauthorized client",
+            "content": {
+                "application/json": {
+                    "schema": {
+                        "type": "object",
+                        "properties": {"error": {"type": "string"}},
+                    }
+                }
             },
         },
         403: {
@@ -85,7 +138,18 @@ cansel_payment_schema = extend_schema(
             "type": "object",
             "properties": {"message": {"type": "string"}},
             "example": {"message": "Payment was canceled. No charges were made."},
-        }
+        },
+        401: {
+            "description": "Unauthorized client",
+            "content": {
+                "application/json": {
+                    "schema": {
+                        "type": "object",
+                        "properties": {"error": {"type": "string"}},
+                    }
+                }
+            },
+        },
     },
 )
 
@@ -129,6 +193,17 @@ renew_stripe_session_schema = extend_schema(
                         "properties": {"error": {"type": "string"}},
                     },
                 },
+            },
+        },
+        401: {
+            "description": "Unauthorized client",
+            "content": {
+                "application/json": {
+                    "schema": {
+                        "type": "object",
+                        "properties": {"error": {"type": "string"}},
+                    }
+                }
             },
         },
         403: {
