@@ -35,9 +35,7 @@ def notify_new_payment(self, payment_id):
     Task to notify successful Payment
     """
     try:
-        logger.info(
-            f"Processing notify_new_payment for payment_id={payment_id}"
-        )
+        logger.info(f"Processing notify_new_payment for payment_id={payment_id}")
         payment = Payment.objects.get(id=payment_id)
 
         message = (
@@ -53,9 +51,7 @@ def notify_new_payment(self, payment_id):
 
         success = send_telegram_message(message)
         if not success:
-            logger.error(
-                f"Failed to send notification for payment {payment.id}"
-            )
+            logger.error(f"Failed to send notification for payment {payment.id}")
             raise Exception("Failed to send Telegram notification")
         logger.info(f"Notification sent for new payment {payment.id}")
     except Payment.DoesNotExist:
