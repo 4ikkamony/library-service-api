@@ -28,7 +28,7 @@ class Payment(models.Model):
     type = models.CharField(max_length=10, choices=Type.choices, default=Type.PAYMENT)
 
     def clean(self):
-        if self.money_to_pay < 0:
+        if self.money_to_pay <= 0:
             raise ValidationError("The value cannot be negative.")
 
     def save(self, *args, **kwargs):
