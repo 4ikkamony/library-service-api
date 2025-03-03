@@ -37,6 +37,17 @@ detail_payment_schema = extend_schema(
                 }
             }
         },
+        403: {
+            "description": "Permission denied",
+            "content": {
+                "application/json": {
+                    "schema": {
+                        "type": "object",
+                        "properties": {"error": {"type": "string"}},
+                    },
+                },
+            },
+        },
     }
 )
 
