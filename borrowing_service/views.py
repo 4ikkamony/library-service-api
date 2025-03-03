@@ -16,6 +16,7 @@ from borrowing_service.serializers import (
     BorrowingReturnSerializer,
 )
 from borrowing_service.schemas import borrowing_viewset_schema, borrowing_return_schema
+from borrowing_service.tasks import notify_new_borrowing
 from payment_service.models import Payment
 from payment_service.utils import create_payment_session
 
@@ -119,6 +120,7 @@ class BorrowingViewSet(
             payment, session_url = create_payment_session(
                 borrowing, self.request, Payment.Type.PAYMENT
             )
+            notify_new_borrowing.delay(borrowing.id)
 
         response_data = BorrowingCreateSerializer(borrowing).data
         response_data.update(
