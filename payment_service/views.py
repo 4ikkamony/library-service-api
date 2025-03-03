@@ -19,7 +19,7 @@ class ListPaymentView(generics.ListAPIView):
 
     def get_queryset(self):
         queryset = self.queryset
-        if self.request.user.is_superuser:
+        if self.request.user.is_staff:
             return queryset
         else:
             return queryset.filter(borrowing__user=self.request.user.id)
@@ -31,7 +31,7 @@ class DetailPaymentView(generics.RetrieveAPIView):
 
     def get_queryset(self):
         queryset = self.queryset
-        if self.request.user.is_superuser:
+        if self.request.user.is_staff:
             return queryset
         else:
             return queryset.filter(borrowing__user=self.request.user.id)
