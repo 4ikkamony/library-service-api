@@ -6,7 +6,7 @@ from django.urls import reverse
 from rest_framework import status, generics
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
+from rest_framework.permissions import IsAuthenticated
 from payment_service.models import Payment, datetime_from_timestamp
 from payment_service.schemas import (
     success_payment_schema,
@@ -22,6 +22,7 @@ stripe.api_key = settings.STRIPE_SECRET_KEY
 class ListPaymentView(generics.ListAPIView):
     queryset = Payment.objects.all()
     serializer_class = PaymentListSerializer
+    permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
         queryset = self.queryset
@@ -34,6 +35,7 @@ class ListPaymentView(generics.ListAPIView):
 class DetailPaymentView(generics.RetrieveAPIView):
     queryset = Payment.objects.all()
     serializer_class = PaymentSerializer
+    permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
         queryset = self.queryset
@@ -44,6 +46,8 @@ class DetailPaymentView(generics.RetrieveAPIView):
 
 
 class SuccessPaymentView(APIView):
+    permission_classes = (IsAuthenticated,)
+
     @success_payment_schema
     def post(self, request, *args, **kwargs):
         session_id = request.query_params.get("session_id")
@@ -97,12 +101,16 @@ class SuccessPaymentView(APIView):
 
 
 class CancelPaymentView(APIView):
+    permission_classes = (IsAuthenticated,)
+
     @cansel_payment_schema
     def get(self, request, *args, **kwargs):
         return Response({"message": "Payment was canceled. No charges were made."})
 
 
 class RenewStripeSessionView(APIView):
+    permission_classes = (IsAuthenticated,)
+
     @renew_stripe_session_schema
     def post(self, request):
         payment_id = request.data.get("payment_id")
