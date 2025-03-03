@@ -24,14 +24,12 @@ class BorrowingBookSerializer(serializers.ModelSerializer):
 class BorrowingCreateSerializer(serializers.ModelSerializer):
     book = serializers.PrimaryKeyRelatedField(queryset=Book.objects.all())
     expected_return_date = serializers.DateField(required=True)
+    payment_id = serializers.IntegerField(read_only=True)
+    session_url = serializers.CharField(read_only=True)
 
     class Meta:
         model = Borrowing
-        fields = (
-            "id",
-            "expected_return_date",
-            "book",
-        )
+        fields = ("id", "expected_return_date", "book", "payment_id", "session_url")
 
     def validate(self, data):
         user = self.context["request"].user
