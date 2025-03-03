@@ -13,9 +13,7 @@ class TelegramNotificationTestCase(TestCase):
     def test_send_telegram_message_success(self, mock_post):
         mock_response = Mock()
         mock_response.status_code = 200
-        mock_response.json.return_value = {
-            "ok": True, "result": {"message_id": 123}
-        }
+        mock_response.json.return_value = {"ok": True, "result": {"message_id": 123}}
         mock_post.return_value = mock_response
 
         result = send_telegram_message(self.message)
@@ -46,7 +44,9 @@ class TelegramNotificationTestCase(TestCase):
     def test_send_telegram_message_failure_400(self, mock_post):
         mock_response = Mock()
         mock_response.status_code = 400
-        mock_response.text = '{"ok":false,"error_code":400,"description":"Bad Request: chat not found"}'
+        mock_response.text = (
+            '{"ok":false,"error_code":400,"description":"Bad Request: chat not found"}'
+        )
         mock_post.return_value = mock_response
 
         result = send_telegram_message(self.message)
@@ -68,9 +68,7 @@ class TelegramNotificationTestCase(TestCase):
     def test_send_telegram_message_long_message(self, mock_post):
         mock_response = Mock()
         mock_response.status_code = 200
-        mock_response.json.return_value = {
-            "ok": True, "result": {"message_id": 123}
-        }
+        mock_response.json.return_value = {"ok": True, "result": {"message_id": 123}}
         mock_post.return_value = mock_response
 
         # near message length Telegram limit 4096
@@ -91,9 +89,7 @@ class TelegramNotificationTestCase(TestCase):
     def test_send_telegram_message_special_characters(self, mock_post):
         mock_response = Mock()
         mock_response.status_code = 200
-        mock_response.json.return_value = {
-            "ok": True, "result": {"message_id": 123}
-        }
+        mock_response.json.return_value = {"ok": True, "result": {"message_id": 123}}
         mock_post.return_value = mock_response
 
         special_message = "Test **bold** & <script> *italic* > text"
