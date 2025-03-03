@@ -12,31 +12,23 @@ from notifications_service.utils import send_telegram_message
 logger = logging.getLogger(__name__)
 
 
-@shared_task(bind=True, max_retries=3)
-def notify_overdue_borrowings(self):
-    today, overdue_borrowings = today_overdue_borrowings()
-    messages = []
-    if overdue_borrowings:
-        for borrowing in overdue_borrowings:
-            messages.append(
-                f"{today} Overdue Borrowing:\n"
-                f"Borrowing ID: {borrowing.id}\n"
-                f"User: {borrowing.user.email}\n"
-                f"Book: {borrowing.book.title}"
-            )
-    else:
-        messages.append(f"No borrowings overdue for {today}")
-
-    for message in messages:
-        try:
-            logger.info("Processing notify_overdue_borrowings")
-            success = send_telegram_message(message)
-            if not success:
-                logger.error("Failed to send Telegram notification")
-                raise Exception("Failed to send Telegram notification")
-        except Exception as exc:
-            logger.error(f"Error in notify_new_borrowing: {str(exc)}")
-            raise self.retry(exc=exc, countdown=60)
+@shared_task(max_retries=3, bind=True)
+def notify_new_borrowing(self, borrowing_id, user_email, book_title) -> None:
+    try:
+        logger.info(f"Processing notify_new_borrowing for borrowing_id={borrowing_id}")
+        message = (
+            f"New Borrowing Created!\n"
+            f"Borrowing ID: {borrowing_id}\n"
+            f"User: {user_email}\n"
+            f"Book: {book_title}"
+        )
+        success = send_telegram_message(message)
+        if not success:
+            logger.error("Failed to send Telegram notification")
+            raise Exception("Failed to send Telegram notification")
+    except Exception as exc:
+        logger.error(f"Error in notify_new_borrowing: {str(exc)}")
+        raise self.retry(exc=exc, countdown=60)
 
 
 # If is needed to be moved to another service
