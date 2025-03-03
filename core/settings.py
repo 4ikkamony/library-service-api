@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "borrowing_service",
     "payment_service",
     "notifications_service",
+    "django_extensions",
 ]
 
 MIDDLEWARE = [
