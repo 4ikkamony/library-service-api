@@ -71,7 +71,7 @@ class SerializersTest(TestCase):
     def test_book_list_serializer_fields(self):
         serializer = BookListSerializer()
         fields = set(serializer.fields.keys())
-        expected_fields = {"id", "title", "author"}
+        expected_fields = {"id", "title", "author", "inventory"}
         self.assertEqual(fields, expected_fields)
 
     def test_book_detail_serializer_fields(self):

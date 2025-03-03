@@ -122,12 +122,9 @@ class BorrowingViewSet(
             )
             notify_new_borrowing.delay(borrowing.id)
 
+        borrowing.payment_id = payment.id if payment else None
+        borrowing.session_url = session_url if session_url else None
+
         response_data = BorrowingCreateSerializer(borrowing).data
-        response_data.update(
-            {
-                "payment_id": payment.id if payment else None,
-                "session_url": session_url if session_url else None,
-            }
-        )
 
         return Response(response_data, status=status.HTTP_200_OK)
