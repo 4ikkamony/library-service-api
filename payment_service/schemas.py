@@ -1,4 +1,11 @@
-from drf_spectacular.utils import extend_schema, OpenApiParameter, inline_serializer
+from drf_spectacular.utils import (
+    extend_schema,
+    OpenApiParameter,
+    inline_serializer,
+    OpenApiResponse,
+    OpenApiExample,
+    OpenApiTypes,
+)
 from rest_framework import serializers
 from payment_service.serializers import PaymentSerializer
 
@@ -48,6 +55,22 @@ success_payment_schema = extend_schema(
                     "schema": {
                         "type": "object",
                         "properties": {"error": {"type": "string"}},
+                    },
+                },
+            },
+        },
+        404: {
+            "description": "Error: Not Found",
+            "content": {
+                "application/json": {
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "detail": {
+                                "type": "string",
+                                "example": "No Payment matches the given query.",
+                            }
+                        },
                     },
                 },
             },
@@ -115,6 +138,22 @@ renew_stripe_session_schema = extend_schema(
                     "schema": {
                         "type": "object",
                         "properties": {"error": {"type": "string"}},
+                    },
+                },
+            },
+        },
+        404: {
+            "description": "Error: Not Found",
+            "content": {
+                "application/json": {
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "detail": {
+                                "type": "string",
+                                "example": "No Payment matches the given query.",
+                            }
+                        },
                     },
                 },
             },
