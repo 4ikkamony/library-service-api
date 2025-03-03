@@ -143,8 +143,8 @@ class RenewStripeSessionView(APIView):
             )
 
         success_url = (
-                request.build_absolute_uri(reverse("payment_service:payment-success"))
-                + "?session_id={CHECKOUT_SESSION_ID}"
+            request.build_absolute_uri(reverse("payment_service:payment-success"))
+            + "?session_id={CHECKOUT_SESSION_ID}"
         )
         cancel_url = request.build_absolute_uri(
             reverse("payment_service:payment-cancel")

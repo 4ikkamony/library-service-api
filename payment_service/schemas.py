@@ -20,7 +20,8 @@ list_payment_schema = extend_schema(
             }
         },
     },
-    description="List all payments (staff users see all, regular users see only their own).",
+    description="List all payments "
+                "(staff users see all, regular users see only their own).",
 )
 
 detail_payment_schema = extend_schema(
