@@ -1,6 +1,7 @@
 from drf_spectacular.utils import (
     extend_schema,
-    OpenApiParameter, OpenApiExample,
+    OpenApiParameter,
+    OpenApiExample,
 )
 
 from payment_service.serializers import PaymentSerializer, PaymentListSerializer
