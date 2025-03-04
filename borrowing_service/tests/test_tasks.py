@@ -48,7 +48,7 @@ class NotifyNewBorrowingTestCase(TestCase):
 
         expected_message = (
             "New Borrowing Created!\n"
-            "Borrowing ID: 1\n"
+            f"Borrowing ID: {self.borrowing.id}\n"
             "User: testuser@example.com\n"
             "Book: Test Book\n"
             f"Borrow Date: {datetime.date.today()}\n"
