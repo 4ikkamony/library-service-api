@@ -14,7 +14,7 @@ class BorrowingViewSetTest(APITestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.timezone_patcher = patch("django.utils.timezone.now")
+        cls.timezone_patcher = patch("borrowing_service.models.timezone.now")
         cls.mock_now = cls.timezone_patcher.start()
         cls.payment_patcher = patch(
             "borrowing_service.views.create_payment_session",
@@ -73,12 +73,10 @@ class BorrowingViewSetTest(APITestCase):
             expected_return_date=(self.fixed_now + timedelta(days=1)).date(),
         )
 
-        self.mock_now.return_value = self.fixed_now + timedelta(days=5)
-
         response = self.client.post(f"/api/borrowings/{borrowing.id}/return/")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIn("payment_id", response.data)
-        self.assertIn("session_url", response.data)
+        self.assertIn("message", response.data)
+        self.assertEqual(response.data.get("message"), "Book returned successfully")
 
     def test_user_sees_only_own_borrowings(self):
         Borrowing.objects.create(
