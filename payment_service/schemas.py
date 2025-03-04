@@ -154,14 +154,21 @@ cansel_payment_schema = extend_schema(
 )
 
 renew_stripe_session_schema = extend_schema(
-    parameters=[
-        OpenApiParameter(
-            name="session_id",
-            description="Stripe Checkout Session ID",
-            required=True,
-            type=str,
-        ),
-    ],
+    request={
+        "application/json": {
+            "schema": {
+                "type": "object",
+                "properties": {
+                    "payment_id": {
+                        "type": "string",
+                        "description": "Stripe Payment ID",
+                        "example": "pi_123456789",
+                    }
+                },
+                "required": ["payment_id"],
+            }
+        }
+    },
     responses={
         200: {
             "description": "Payment session renewed successfully",
