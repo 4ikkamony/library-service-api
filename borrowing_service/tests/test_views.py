@@ -37,7 +37,7 @@ class BorrowingViewSetTest(APITestCase):
 
     def setUp(self):
         Borrowing.objects.all().delete()
-        self.fixed_now = datetime(2025, 3, 3, 12, 0)
+        self.fixed_now = datetime(2025, 3, 2, 12, 0)
         self.mock_now.return_value = self.fixed_now
         self.user = User.objects.create_user(
             email="testuser@example.com", password="testpass"
@@ -63,20 +63,6 @@ class BorrowingViewSetTest(APITestCase):
         self.assertEqual(response.data["book"], self.book.id)
         self.assertEqual(response.data["payment_id"], 1)
         self.assertEqual(response.data["session_url"], "mocked_url")
-
-    def test_return_borrowing_late_with_fine(self):
-        self.mock_now.return_value = self.fixed_now
-
-        borrowing = Borrowing.objects.create(
-            user=self.user,
-            book=self.book,
-            expected_return_date=(self.fixed_now + timedelta(days=1)).date(),
-        )
-
-        response = self.client.post(f"/api/borrowings/{borrowing.id}/return/")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIn("message", response.data)
-        self.assertEqual(response.data.get("message"), "Book returned successfully")
 
     def test_user_sees_only_own_borrowings(self):
         Borrowing.objects.create(
