@@ -23,7 +23,9 @@ class Borrowing(models.Model):
 
         if not self.borrow_date:
             if self.expected_return_date < today:
-                raise ValidationError("Expected return date is earlier than borrow date.")
+                raise ValidationError(
+                    "Expected return date is earlier than borrow date."
+                )
 
             if self.actual_return_date and self.actual_return_date < today:
                 raise ValidationError(
@@ -31,7 +33,9 @@ class Borrowing(models.Model):
                 )
         else:
             if self.expected_return_date < self.borrow_date:
-                raise ValidationError("Expected return date is earlier than borrow date.")
+                raise ValidationError(
+                    "Expected return date is earlier than borrow date."
+                )
 
             if self.actual_return_date and self.actual_return_date < self.borrow_date:
                 raise ValidationError(
