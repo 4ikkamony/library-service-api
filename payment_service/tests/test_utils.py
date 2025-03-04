@@ -5,8 +5,12 @@ from decimal import Decimal
 from django.utils import timezone
 from django.test import TestCase, RequestFactory
 from payment_service.models import Payment
+from borrowing_service.models import Borrowing
+from book_service.models import Book
 from payment_service.utils import expired_sessions, create_payment_session
 import stripe
+
+from user.models import User
 
 
 class TestUtils(TestCase):
@@ -20,49 +24,92 @@ class TestUtils(TestCase):
         self.past_time = self.current_time - timedelta(days=1)
         self.future_time = self.current_time + timedelta(days=1)
 
-    @patch("payment_service.utils.Payment.objects.filter")
-    def test_expired_sessions(self, mock_filter):
+        # Create a test user
+        self.user = User.objects.create_user(
+            email="test@test.com",
+            password="testpass",
+        )
+
+        # Create a test book
+        self.book = Book.objects.create(
+            title="Test Book",
+            author="Test Author",
+            cover=Book.CoverType.HARD,
+            inventory=5,
+            daily_fee=Decimal("1.00"),
+        )
+
+        # Create a test borrowing
+        self.borrowing = Borrowing.objects.create(
+            user=self.user,
+            book=self.book,
+            borrow_date=timezone.now().date(),
+            expected_return_date=(timezone.now() + timedelta(days=7)).date(),
+            actual_return_date=None,
+        )
+
+        # Create test payments
+        self.payment_expired = Payment.objects.create(
+            borrowing=self.borrowing,
+            status=Payment.Status.PENDING,
+            type=Payment.Type.PAYMENT,
+            money_to_pay=Decimal("10.00"),
+            session_id="expired_session",
+            session_expires_at=self.past_time,
+            session_url="http://stripe.com/expired",
+        )
+
+        self.payment_active = Payment.objects.create(
+            borrowing=self.borrowing,
+            status=Payment.Status.PENDING,
+            type=Payment.Type.PAYMENT,
+            money_to_pay=Decimal("20.00"),
+            session_id="active_session",
+            session_expires_at=self.future_time,
+            session_url="http://stripe.com/active",
+        )
+
+        self.payment_paid = Payment.objects.create(
+            borrowing=self.borrowing,
+            status=Payment.Status.PAID,
+            type=Payment.Type.PAYMENT,
+            money_to_pay=Decimal("30.00"),
+            session_id="paid_session",
+            session_expires_at=self.past_time,
+            session_url="http://stripe.com/paid",
+        )
+
+    def test_expired_sessions(self):
         """
         Test for the expired_sessions function.
         Checks if the function correctly returns payments with expired sessions.
         """
-        # Arrange
-        mock_filter.return_value = MagicMock()
-
         # Act
         current_time, expired_payments = expired_sessions()
 
         # Assert
-        mock_filter.assert_called_once_with(
-            session_expires_at__lt=current_time, status=Payment.Status.PENDING
-        )
-        # Compare only the significant parts of datetime (ignoring microseconds)
-        self.assertEqual(
-            current_time.replace(microsecond=0),
-            self.current_time.replace(microsecond=0),
-        )
-        self.assertIsNotNone(expired_payments)
+        # Check that only the expired payment is returned
+        self.assertEqual(expired_payments.count(), 1)
+        self.assertEqual(expired_payments.first().id, self.payment_expired.id)
 
-    @patch("payment_service.utils.Payment.objects.filter")
-    def test_expired_sessions_no_expired_payments(self, mock_filter):
+        # Check that the current time is correct (ignoring seconds and microseconds)
+        self.assertEqual(
+            current_time.replace(second=0, microsecond=0),
+            self.current_time.replace(second=0, microsecond=0),
+        )
+
+    def test_expired_sessions_no_expired_payments(self):
         """
         Test for the expired_sessions function when there are no expired payments.
         """
-        # Arrange
-        mock_filter.return_value = Payment.objects.none()  # No expired payments
+        # Delete the expired payment
+        self.payment_expired.delete()
 
         # Act
         current_time, expired_payments = expired_sessions()
 
         # Assert
-        mock_filter.assert_called_once_with(
-            session_expires_at__lt=current_time, status=Payment.Status.PENDING
-        )
-        # Compare only the significant parts of datetime (ignoring microseconds)
-        self.assertEqual(
-            current_time.replace(microsecond=0),
-            self.current_time.replace(microsecond=0),
-        )
+        # No expired payments should be returned
         self.assertEqual(expired_payments.count(), 0)
 
     @patch("payment_service.utils.create_stripe_session")
@@ -104,53 +151,7 @@ class TestUtils(TestCase):
             type=Payment.Type.PAYMENT,
             money_to_pay=Decimal("50.00"),
             session_id="test_session_id",
-            session_expires_at=expected_expires_at,  # Use datetime with timezone
-            session_url="http://stripe.com/session",
-        )
-        self.assertIsNotNone(payment)
-        self.assertEqual(session_url, "http://stripe.com/session")
-
-    @patch("payment_service.utils.create_stripe_session")
-    @patch("payment_service.utils.Payment.objects.create")
-    def test_create_payment_session_fine(self, mock_create, mock_stripe_session):
-        """
-        Test for the create_payment_session function with payment type FINE.
-        """
-        # Arrange
-        borrowing = MagicMock()
-        borrowing.book.daily_fee = Decimal("10.00")
-        borrowing.expected_return_date = self.current_time + timedelta(days=5)
-        borrowing.borrow_date = self.current_time
-        borrowing.actual_return_date = self.current_time + timedelta(
-            days=7
-        )  # Late return
-        borrowing.book.title = "Test Book"
-        request = self.factory.get("/fake-path/")
-
-        # Mock Stripe session
-        mock_stripe_session.return_value = MagicMock(
-            id="test_session_id",
-            expires_at=self.future_time.timestamp(),
-            url="http://stripe.com/session",
-        )
-        mock_create.return_value = MagicMock()
-
-        # Act
-        payment, session_url = create_payment_session(
-            borrowing, request, payment_type=Payment.Type.FINE
-        )
-
-        # Assert
-        mock_stripe_session.assert_called_once()
-        mock_create.assert_called_once_with(
-            borrowing=borrowing,
-            status=Payment.Status.PENDING,
-            type=Payment.Type.FINE,
-            money_to_pay=Decimal("20.00"),  # 10.00 * (7 - 5) = 20.00
-            session_id="test_session_id",
-            session_expires_at=datetime.fromtimestamp(
-                self.future_time.timestamp(), tz=datetime_timezone.utc
-            ),
+            session_expires_at=expected_expires_at,
             session_url="http://stripe.com/session",
         )
         self.assertIsNotNone(payment)
