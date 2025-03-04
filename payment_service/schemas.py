@@ -1,6 +1,7 @@
 from drf_spectacular.utils import (
     extend_schema,
     OpenApiParameter,
+    OpenApiExample,
 )
 
 from payment_service.serializers import PaymentSerializer, PaymentListSerializer
@@ -154,13 +155,30 @@ cansel_payment_schema = extend_schema(
 )
 
 renew_stripe_session_schema = extend_schema(
-    parameters=[
-        OpenApiParameter(
-            name="session_id",
-            description="Stripe Checkout Session ID",
-            required=True,
-            type=str,
-        ),
+    request={
+        "application/json": {
+            "schema": {
+                "type": "object",
+                "properties": {
+                    "payment_id": {
+                        "type": "integer",
+                        "format": "int32",
+                        "description": "Stripe Payment ID",
+                        "example": 1,
+                    }
+                },
+                "required": ["payment_id"],
+            }
+        }
+    },
+    examples=[
+        OpenApiExample(
+            "Request Example",
+            summary="Example request body",
+            description="This is how you should send the request.",
+            value={"payment_id": 1},  # Explicitly showing integer value
+            request_only=True,  # Ensures it's applied to request, not response
+        )
     ],
     responses={
         200: {
