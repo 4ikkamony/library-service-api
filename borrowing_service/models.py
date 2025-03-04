@@ -21,13 +21,22 @@ class Borrowing(models.Model):
         if self.book.inventory <= 0:
             raise ValidationError("Selected book is out of stock.")
 
-        if self.expected_return_date < today:
-            raise ValidationError("Expected return date is earlier than borrow date.")
+        if not self.borrow_date:
+            if self.expected_return_date < today:
+                raise ValidationError("Expected return date is earlier than borrow date.")
 
-        if self.actual_return_date and self.actual_return_date < today:
-            raise ValidationError(
-                "Actual return date cannot be earlier than borrow date."
-            )
+            if self.actual_return_date and self.actual_return_date < today:
+                raise ValidationError(
+                    "Actual return date cannot be earlier than borrow date."
+                )
+        else:
+            if self.expected_return_date < self.borrow_date:
+                raise ValidationError("Expected return date is earlier than borrow date.")
+
+            if self.actual_return_date and self.actual_return_date < self.borrow_date:
+                raise ValidationError(
+                    "Actual return date cannot be earlier than borrow date."
+                )
 
     def save(self, *args, **kwargs):
         self.clean()
