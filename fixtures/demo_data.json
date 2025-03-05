@@ -1,0 +1,147 @@
+[
+    {
+        "model": "user.user",
+        "pk": 1,
+        "fields": {
+            "password": "pbkdf2_sha256$870000$kRzw4rCXO6khSG6LnngHFC$Pk+79XqAlsPqRLmbCR7UG4sa5DKKsbFFxUkgSiHCRqQ=",
+            "last_login": null,
+            "is_superuser": false,
+            "is_staff": false,
+            "is_active": true,
+            "date_joined": "2025-03-03T13:08:08.903Z",
+            "first_name": "Pavlo",
+            "last_name": "Yashchenko",
+            "email": "user@user.com",
+            "groups": [],
+            "user_permissions": []
+        }
+    },
+    {
+        "model": "user.user",
+        "pk": 2,
+        "fields": {
+            "password": "pbkdf2_sha256$870000$kRzw4rCXO6khSG6LnngHFC$Pk+79XqAlsPqRLmbCR7UG4sa5DKKsbFFxUkgSiHCRqQ=",
+            "last_login": null,
+            "is_superuser": false,
+            "is_staff": false,
+            "is_active": true,
+            "date_joined": "2025-03-03T13:08:08.903Z",
+            "first_name": "Technical",
+            "last_name": "Guerilla",
+            "email": "user2@user.com",
+            "groups": [],
+            "user_permissions": []
+        }
+    },
+    {
+        "model": "user.user",
+        "pk": 3,
+        "fields": {
+            "password": "pbkdf2_sha256$870000$kRzw4rCXO6khSG6LnngHFC$Pk+79XqAlsPqRLmbCR7UG4sa5DKKsbFFxUkgSiHCRqQ=",
+            "last_login": null,
+            "is_superuser": true,
+            "is_staff": true,
+            "is_active": true,
+            "date_joined": "2025-03-03T13:08:08.903Z",
+            "first_name": "Yavlo",
+            "last_name": "Pashchenko",
+            "email": "admin@admin.com",
+            "groups": [],
+            "user_permissions": []
+        }
+    },
+    {
+        "model": "book_service.book",
+        "pk": 1,
+        "fields": {
+            "title": "Tinker Tailor Soldier Spy",
+            "author": "John le Carré",
+            "cover": "hard",
+            "inventory": 10,
+            "daily_fee": "6.00"
+        }
+    },
+    {
+        "model": "book_service.book",
+        "pk": 2,
+        "fields": {
+            "title": "Fahrenheit 451",
+            "author": "Ray Bradbury",
+            "cover": "soft",
+            "inventory": 0,
+            "daily_fee": "3.00"
+        }
+    },
+    {
+        "model": "book_service.book",
+        "pk": 3,
+        "fields": {
+            "title": "Rainbow Six",
+            "author": "Tom Clancy",
+            "cover": "hard",
+            "inventory": 2,
+            "daily_fee": "4.00"
+        }
+    },
+    {
+        "model": "borrowing_service.borrowing",
+        "pk": 1,
+        "fields": {
+            "user": 1,
+            "book": 1,
+            "borrow_date": "2025-02-20",
+            "expected_return_date": "2025-03-02",
+            "actual_return_date": null
+        }
+    },
+    {
+        "model": "borrowing_service.borrowing",
+        "pk": 2,
+        "fields": {
+            "user": 2,
+            "book": 2,
+            "borrow_date": "2025-03-01",
+            "expected_return_date": "2026-03-03",
+            "actual_return_date": null
+        }
+    },
+    {
+        "model": "payment_service.payment",
+        "pk": 1,
+        "fields": {
+            "borrowing": 1,
+            "status": "paid",
+            "type": "payment",
+            "session_id": "testid_1",
+            "session_url": "https://test.com/url/",
+            "session_expires_at": "2025-03-01",
+            "money_to_pay": "50.00"
+        }
+    },
+    {
+        "model": "payment_service.payment",
+        "pk": 2,
+        "fields": {
+            "borrowing": 1,
+            "status": "pending",
+            "type": "fine",
+            "session_id": "testid_2",
+            "session_url": "https://test.com/url/",
+            "session_expires_at": "2025-03-01",
+            "money_to_pay": "50.00"
+        }
+    },
+    {
+        "model": "payment_service.payment",
+        "pk": 3,
+        "fields": {
+            "borrowing": 2,
+            "status": "paid",
+            "type": "payment",
+            "session_id": "testid_3",
+            "session_url": "https://test.com/url/",
+            "session_expires_at": "2025-02-01",
+            "money_to_pay": "6.00"
+        }
+    }
+]
