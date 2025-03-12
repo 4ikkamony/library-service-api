@@ -3,6 +3,9 @@
 DRF-Powered Team Project
 
 ---
+## Database Diagram
+![library_db](https://github.com/user-attachments/assets/7921a73e-d113-433b-bd0f-e136fb48b9a8)
+
 
 ## 🚀 Try it out
    Make sure you have Python and Docker up and running
