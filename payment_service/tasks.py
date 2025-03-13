@@ -6,7 +6,7 @@ from celery import shared_task
 from notifications_service.utils import (
     send_telegram_message,
     task_handler,
-    send_notification
+    send_notification,
 )
 from payment_service.models import Payment
 from payment_service.utils import expired_sessions

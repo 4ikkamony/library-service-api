@@ -43,11 +43,7 @@ def task_handler(max_retries=3, countdown=60):
                 logger.error(f"Error in {func.__name__}: {str(exc)}")
                 if isinstance(exc, self.retry.__class__):
                     raise exc
-                raise self.retry(
-                    exc=exc,
-                    max_retries=max_retries,
-                    countdown=countdown
-                )
+                raise self.retry(exc=exc, max_retries=max_retries, countdown=countdown)
 
         return wrapper
 

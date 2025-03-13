@@ -33,29 +33,18 @@ class TaskHandlerTestCase(TestCase):
         with self.assertRaises(Exception) as context:
             mock_task(self.mock_self)
         self.assertEqual(str(context.exception), "Retry failed")
-        mock_logger.error.assert_called_once_with(
-            "Error in mock_task: Test error"
-        )
+        mock_logger.error.assert_called_once_with("Error in mock_task: Test error")
 
 
 class SendNotificationTestCase(TestCase):
-    @patch(
-        "notifications_service.utils.send_telegram_message",
-        return_value=True
-    )
+    @patch("notifications_service.utils.send_telegram_message", return_value=True)
     def test_send_notification_success(self, mock_send_telegram):
         message = "Test message"
         send_notification(message)
         mock_send_telegram.assert_called_once_with(message)
 
-    @patch(
-        "notifications_service.utils.send_telegram_message",
-        return_value=False
-    )
+    @patch("notifications_service.utils.send_telegram_message", return_value=False)
     def test_send_notification_failure(self, mock_send_telegram):
         with self.assertRaises(Exception) as context:
             send_notification("Test message")
-        self.assertEqual(
-            str(context.exception),
-            "Failed to send Telegram notification"
-        )
+        self.assertEqual(str(context.exception), "Failed to send Telegram notification")

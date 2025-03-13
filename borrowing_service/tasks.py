@@ -4,10 +4,7 @@ from celery import shared_task
 
 from borrowing_service.models import Borrowing
 from borrowing_service.utils import today_overdue_borrowings
-from notifications_service.utils import (
-    send_notification,
-    task_handler
-)
+from notifications_service.utils import send_notification, task_handler
 
 # Used for Celery logging via:
 # celery -A core.celery_config worker -l info
