@@ -7,6 +7,30 @@ DRF-Powered Team Project
 ![library_db](https://github.com/user-attachments/assets/7921a73e-d113-433b-bd0f-e136fb48b9a8)
 
 
+## Available Endpoints
+
+#### ![Schema .yaml file](docs/library_service_api.yaml)
+
+### Book Service
+
+![image](https://github.com/user-attachments/assets/b4913cb6-2ca7-4c7e-8924-db99d0feb09a)
+
+
+### Borrowing Service
+
+![image](https://github.com/user-attachments/assets/7f9811b4-3427-4cdf-a886-6fd1fbf035d2)
+
+
+### Payment Service
+
+![image](https://github.com/user-attachments/assets/7114a15d-3cd6-4e1c-8846-bcb542e6b14d)
+
+
+### User Service
+
+![image](https://github.com/user-attachments/assets/95b73436-268a-4e95-8fed-cd796a5df0e1)
+
+
 ## 🚀 Try it out
    Make sure you have Python and Docker up and running
 
