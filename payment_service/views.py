@@ -107,7 +107,9 @@ class SuccessPaymentView(APIView):
                 )
 
         except stripe.error.StripeError as exception:
-            return Response({"error": str(exception)}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": str(exception)}, status=status.HTTP_400_BAD_REQUEST
+            )
 
 
 class CancelPaymentView(APIView):
@@ -163,7 +165,9 @@ class RenewStripeSessionView(APIView):
                 cancel_url,
             )
         except stripe.error.StripeError as exception:
-            return Response({"error": str(exception)}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": str(exception)}, status=status.HTTP_400_BAD_REQUEST
+            )
 
         try:
             with transaction.atomic():
