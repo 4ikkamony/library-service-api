@@ -11,45 +11,22 @@ DRF-Powered Team Project
 
 ### Book Service
 
-| Method | Path | Description |
-| --- | --- | --- |
-| GET | **/api/books/** | List of Books |
-| POST | **/api/books/** | Create a Book |
-| GET | **/api/books/{id}/** | Retrieve a Book's detailed data |
-| PUT | **/api/books/{id}/** | Update a Book's data |
-| PATCH | **/api/books/{id}/** | Partially update a Book |
-| DELETE | **/api/books/{id}/** | Delete a Book |
+![image](https://github.com/user-attachments/assets/b4913cb6-2ca7-4c7e-8924-db99d0feb09a)
+
 
 ### Borrowing Service
 
-| Method | Path | Description |
-| --- | --- | --- |
-| GET | **/api/borrowings/** | List of Borrowings (non-admin users see only theirs) |
-| POST | **/api/borrowings/** | Create a Borrowing (if user has no pending Payments or overdue Borrowings. A Payment for it is also created) |
-| GET | **/api/borrowings/{id}/** | Retrieve a Borrowing |
-| POST | **/api/borrowings/{id}/return/** | Return a Borrowing (if returned after expected return date - a fine Payment will be created) |
+![image](https://github.com/user-attachments/assets/7f9811b4-3427-4cdf-a886-6fd1fbf035d2)
+
 
 ### Payment Service
 
-| Method | Path | Description |
-| --- | --- | --- |
-| GET | **/api/payments/** | List of Payments (non-admin users see only theirs) |
-| GET | **/api/payments/{id}/** | Retrieve a Payment |
-| GET | **/api/payments/cancel/** | Stripe Session redirects here on cancellation of payment |
-| POST | **/api/payments/renew/** | Renew a Payment (if its Stripe Session has expired) |
-| POST | **/api/payments/success/** | Stripe Session redirects here on payment success |
+![image](https://github.com/user-attachments/assets/7114a15d-3cd6-4e1c-8846-bcb542e6b14d)
+
 
 ### User Service
 
-| Method | Path | Description |
-| --- | --- | --- |
-| POST | **/api/users/** | Create (register) a User |
-| GET | **/api/users/me/** | Retrieve current User's info |
-| PUT | **/api/users/me/** | Update current User's info |
-| PATCH | **/api/users/me/** | Partially Update current User's info |
-| POST | **/api/users/token/** | Obtain JWT-token pair using credentials |
-| POST | **/api/users/token/refresh/** | Obtain new access token using a refresh token |
-| POST | **/api/users/token/verify/** | Verify that a token is valid |
+![image](https://github.com/user-attachments/assets/95b73436-268a-4e95-8fed-cd796a5df0e1)
 
 
 ## 🚀 Try it out
