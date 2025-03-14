@@ -23,8 +23,8 @@ def send_telegram_message(message: str) -> bool:
             logger.error(f"Telegram API error: {response.text}")
             return False
         return True
-    except Exception as e:
-        logger.error(f"Failed to send Telegram message: {str(e)}")
+    except Exception as exception:
+        logger.error(f"Failed to send Telegram message: {str(exception)}")
         return False
 
 
@@ -39,11 +39,11 @@ def task_handler(max_retries=3, countdown=60):
                 result = func(self, *args, **kwargs)
                 logger.info(f"Task {func.__name__} completed successfully")
                 return result
-            except Exception as exc:
-                logger.error(f"Error in {func.__name__}: {str(exc)}")
-                if isinstance(exc, self.retry.__class__):
-                    raise exc
-                raise self.retry(exc=exc, max_retries=max_retries, countdown=countdown)
+            except Exception as exception:
+                logger.error(f"Error in {func.__name__}: {str(exception)}")
+                if isinstance(exception, self.retry.__class__):
+                    raise exception
+                raise self.retry(exc=exception, max_retries=max_retries, countdown=countdown)
 
         return wrapper
 
