@@ -105,6 +105,33 @@ DRF-Powered Team Project
 
 ---
 
+## Available Endpoints
+
+| Method | Path | Description |
+| --- | --- | --- |
+| GET | [/api/books/](#getapibooks) | List of Books |
+| POST | [/api/books/](#postapibooks) | Create a Book |
+| GET | [/api/books/{id}/](#getapibooksid) | Retrieve a Book |
+| PUT | [/api/books/{id}/](#putapibooksid) | Update a Book |
+| PATCH | [/api/books/{id}/](#patchapibooksid) | Partially update a Book |
+| DELETE | [/api/books/{id}/](#deleteapibooksid) | Delete a Book |
+| GET | [/api/borrowings/](#getapiborrowings) | List of Borrowings (non-admin users see only theirs) |
+| POST | [/api/borrowings/](#postapiborrowings) | Create a Borrowing (if user has no pending Payments or overdue Borrowings) |
+| GET | [/api/borrowings/{id}/](#getapiborrowingsid) | Retrieve a Borrowing |
+| POST | [/api/borrowings/{id}/return/](#postapiborrowingsidreturn) | Return a Borrowing (if returned after expected return date - a fine Payment will be created) |
+| GET | [/api/payments/](#getapipayments) | List of Payments (non-admin users see only theirs) |
+| GET | [/api/payments/{id}/](#getapipaymentsid) | Retrieve a Payment |
+| GET | [/api/payments/cancel/](#getapipaymentscancel) | Stripe Session redirects here on cancellation of payment |
+| POST | [/api/payments/renew/](#postapipaymentsrenew) | Renew a Payment(if it's Stripe Session has expired) |
+| POST | [/api/payments/success/](#postapipaymentssuccess) | Stripe Session redirects here on payment success |
+| POST | [/api/users/](#postapiusers) | Create(register) a User |
+| GET | [/api/users/me/](#getapiusersme) | Retrieve current User's info |
+| PUT | [/api/users/me/](#putapiusersme) | Update current User's info |
+| PATCH | [/api/users/me/](#patchapiusersme) | Partially Update current User's info |
+| POST | [/api/users/token/](#postapiuserstoken) | Obtain JWT-token pair using credentials |
+| POST | [/api/users/token/refresh/](#postapiuserstokenrefresh) | Obtain new access token using a refresh token |
+| POST | [/api/users/token/verify/](#postapiuserstokenverify) | Verify that a token is valid |
+
 # The Team
 
 - [bodiakof](https://github.com/bodiakof)
