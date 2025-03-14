@@ -9,8 +9,8 @@ from payment_service.views import (
 )
 
 urlpatterns = [
-    path("", ListPaymentView.as_view()),
-    path("<int:pk>/", DetailPaymentView.as_view()),
+    path("", ListPaymentView.as_view(), name="payment-list"),
+    path("<int:pk>/", DetailPaymentView.as_view(), name="payment-detail"),
     path("success/", SuccessPaymentView.as_view(), name="payment-success"),
     path("cancel/", CancelPaymentView.as_view(), name="payment-cancel"),
     path("renew/", RenewStripeSessionView.as_view(), name="renew"),

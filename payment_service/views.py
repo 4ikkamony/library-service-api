@@ -34,8 +34,8 @@ class ListPaymentView(generics.ListAPIView):
         queryset = self.queryset
         if self.request.user.is_staff:
             return queryset
-        else:
-            return queryset.filter(borrowing__user=self.request.user.id)
+
+        return queryset.filter(borrowing__user=self.request.user.id)
 
 
 @detail_payment_schema
@@ -48,8 +48,8 @@ class DetailPaymentView(generics.RetrieveAPIView):
         queryset = self.queryset
         if self.request.user.is_staff:
             return queryset
-        else:
-            return queryset.filter(borrowing__user=self.request.user.id)
+
+        return queryset.filter(borrowing__user=self.request.user.id)
 
 
 @success_payment_schema
