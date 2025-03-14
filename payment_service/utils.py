@@ -60,7 +60,6 @@ def create_payment_session(borrowing, request, payment_type=Payment.Type.PAYMENT
         payment_description, money_to_pay, success_url, cancel_url
     )
 
-
     payment = Payment.objects.create(
         borrowing=borrowing,
         status=Payment.Status.PENDING,
