@@ -56,12 +56,9 @@ def create_payment_session(borrowing, request, payment_type=Payment.Type.PAYMENT
     )
     cancel_url = request.build_absolute_uri(reverse("payment_service:payment-cancel"))
 
-    try:
-        checkout_session = create_stripe_session(
-            payment_description, money_to_pay, success_url, cancel_url
-        )
-    except stripe.error.StripeError as e:
-        raise e
+    checkout_session = create_stripe_session(
+        payment_description, money_to_pay, success_url, cancel_url
+    )
 
     payment = Payment.objects.create(
         borrowing=borrowing,
