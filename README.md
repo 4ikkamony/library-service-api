@@ -9,6 +9,8 @@ DRF-Powered Team Project
 
 ## Available Endpoints
 
+#### ![Schema .yaml file](docs/library_service_api.yaml)
+
 ### Book Service
 
 ![image](https://github.com/user-attachments/assets/b4913cb6-2ca7-4c7e-8924-db99d0feb09a)
