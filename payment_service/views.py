@@ -26,7 +26,7 @@ stripe.api_key = settings.STRIPE_SECRET_KEY
 
 @list_payment_schema
 class ListPaymentView(generics.ListAPIView):
-    queryset = Payment.objects.all()
+    queryset = Payment.objects.select_related("borrowing").all()
     serializer_class = PaymentListSerializer
     permission_classes = (IsAuthenticated,)
 
