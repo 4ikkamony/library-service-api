@@ -37,11 +37,11 @@ class BorrowingViewSet(
     **Return Borrowing:** Custom action to mark a borrowed book as returned.
     """
 
-    queryset = Borrowing.objects.all()
+    queryset = Borrowing.objects.select_related("user", "book").all()
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        qs = super().get_queryset()
+        qs = self.queryset
         user = self.request.user
 
         is_active = self.request.query_params.get("is_active")
