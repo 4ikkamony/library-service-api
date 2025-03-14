@@ -6,49 +6,50 @@ DRF-Powered Team Project
 ## Database Diagram
 ![library_db](https://github.com/user-attachments/assets/7921a73e-d113-433b-bd0f-e136fb48b9a8)
 
+
 ## Available Endpoints
 
 ### Book Service
 
 | Method | Path | Description |
 | --- | --- | --- |
-| GET | [/api/books/](#getapibooks) | List of Books |
-| POST | [/api/books/](#postapibooks) | Create a Book |
-| GET | [/api/books/{id}/](#getapibooksid) | Retrieve a Book |
-| PUT | [/api/books/{id}/](#putapibooksid) | Update a Book |
-| PATCH | [/api/books/{id}/](#patchapibooksid) | Partially update a Book |
-| DELETE | [/api/books/{id}/](#deleteapibooksid) | Delete a Book |
-
+| GET | **/api/books/** | List of Books |
+| POST | **/api/books/** | Create a Book |
+| GET | **/api/books/{id}/** | Retrieve a Book's detailed data |
+| PUT | **/api/books/{id}/** | Update a Book's data |
+| PATCH | **/api/books/{id}/** | Partially update a Book |
+| DELETE | **/api/books/{id}/** | Delete a Book |
 
 ### Borrowing Service
+
 | Method | Path | Description |
 | --- | --- | --- |
-| GET | [/api/borrowings/](#getapiborrowings) | List of Borrowings (non-admin users see only theirs) |
-| POST | [/api/borrowings/](#postapiborrowings) | Create a Borrowing (if user has no pending Payments or overdue Borrowings) |
-| GET | [/api/borrowings/{id}/](#getapiborrowingsid) | Retrieve a Borrowing |
-| POST | [/api/borrowings/{id}/return/](#postapiborrowingsidreturn) | Return a Borrowing (if returned after expected return date - a fine Payment will be created) |
-
+| GET | **/api/borrowings/** | List of Borrowings (non-admin users see only theirs) |
+| POST | **/api/borrowings/** | Create a Borrowing (if user has no pending Payments or overdue Borrowings. A Payment for it is also created) |
+| GET | **/api/borrowings/{id}/** | Retrieve a Borrowing |
+| POST | **/api/borrowings/{id}/return/** | Return a Borrowing (if returned after expected return date - a fine Payment will be created) |
 
 ### Payment Service
+
 | Method | Path | Description |
 | --- | --- | --- |
-| GET | [/api/payments/](#getapipayments) | List of Payments (non-admin users see only theirs) |
-| GET | [/api/payments/{id}/](#getapipaymentsid) | Retrieve a Payment |
-| GET | [/api/payments/cancel/](#getapipaymentscancel) | Stripe Session redirects here on cancellation of payment |
-| POST | [/api/payments/renew/](#postapipaymentsrenew) | Renew a Payment(if it's Stripe Session has expired) |
-| POST | [/api/payments/success/](#postapipaymentssuccess) | Stripe Session redirects here on payment success |
-
+| GET | **/api/payments/** | List of Payments (non-admin users see only theirs) |
+| GET | **/api/payments/{id}/** | Retrieve a Payment |
+| GET | **/api/payments/cancel/** | Stripe Session redirects here on cancellation of payment |
+| POST | **/api/payments/renew/** | Renew a Payment (if its Stripe Session has expired) |
+| POST | **/api/payments/success/** | Stripe Session redirects here on payment success |
 
 ### User Service
+
 | Method | Path | Description |
 | --- | --- | --- |
-| POST | [/api/users/](#postapiusers) | Create(register) a User |
-| GET | [/api/users/me/](#getapiusersme) | Retrieve current User's info |
-| PUT | [/api/users/me/](#putapiusersme) | Update current User's info |
-| PATCH | [/api/users/me/](#patchapiusersme) | Partially Update current User's info |
-| POST | [/api/users/token/](#postapiuserstoken) | Obtain JWT-token pair using credentials |
-| POST | [/api/users/token/refresh/](#postapiuserstokenrefresh) | Obtain new access token using a refresh token |
-| POST | [/api/users/token/verify/](#postapiuserstokenverify) | Verify that a token is valid |
+| POST | **/api/users/** | Create (register) a User |
+| GET | **/api/users/me/** | Retrieve current User's info |
+| PUT | **/api/users/me/** | Update current User's info |
+| PATCH | **/api/users/me/** | Partially Update current User's info |
+| POST | **/api/users/token/** | Obtain JWT-token pair using credentials |
+| POST | **/api/users/token/refresh/** | Obtain new access token using a refresh token |
+| POST | **/api/users/token/verify/** | Verify that a token is valid |
 
 
 ## 🚀 Try it out
