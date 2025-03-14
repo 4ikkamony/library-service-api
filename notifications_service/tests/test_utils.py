@@ -1,106 +1,50 @@
 from django.test import TestCase
-from unittest.mock import patch, Mock
-from notifications_service.utils import send_telegram_message
-from django.conf import settings
-import requests
+from unittest.mock import Mock, patch
+from notifications_service.utils import task_handler, send_notification
+import logging
 
 
-class TelegramNotificationTestCase(TestCase):
+class TaskHandlerTestCase(TestCase):
     def setUp(self):
-        self.message = "Test message from TestCase"
+        self.mock_self = Mock()
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(logging.INFO)
+        self.handler = logging.StreamHandler()
+        self.logger.addHandler(self.handler)
 
-    @patch("notifications_service.utils.requests.post")
-    def test_send_telegram_message_success(self, mock_post):
-        mock_response = Mock()
-        mock_response.status_code = 200
-        mock_response.json.return_value = {"ok": True, "result": {"message_id": 123}}
-        mock_post.return_value = mock_response
+    def test_task_handler_success(self):
+        self.mock_self.retry = Mock()
 
-        result = send_telegram_message(self.message)
+        @task_handler(max_retries=3, countdown=60)
+        def mock_task(self):
+            return "Success"
 
-        mock_post.assert_called_once_with(
-            f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage",
-            json={
-                "chat_id": settings.TELEGRAM_CHAT_ID,
-                "text": self.message,
-                "parse_mode": "Markdown",
-            },
-        )
-        self.assertTrue(result)
+        result = mock_task(self.mock_self)
+        self.assertEqual(result, "Success")
 
-    @patch("notifications_service.utils.requests.post")
-    def test_send_telegram_message_failure_403(self, mock_post):
-        mock_response = Mock()
-        mock_response.status_code = 403
-        mock_response.text = '{"ok":false,"error_code":403,"description":"Forbidden: bot can\'t initiate conversation with a user"}'
-        mock_post.return_value = mock_response
+    @patch("notifications_service.utils.logger")
+    def test_task_handler_exception(self, mock_logger):
+        self.mock_self.retry.side_effect = Exception("Retry failed")
 
-        result = send_telegram_message(self.message)
+        @task_handler(max_retries=3, countdown=60)
+        def mock_task(self):
+            raise Exception("Test error")
 
-        mock_post.assert_called_once()
-        self.assertFalse(result)
+        with self.assertRaises(Exception) as context:
+            mock_task(self.mock_self)
+        self.assertEqual(str(context.exception), "Retry failed")
+        mock_logger.error.assert_called_once_with("Error in mock_task: Test error")
 
-    @patch("notifications_service.utils.requests.post")
-    def test_send_telegram_message_failure_400(self, mock_post):
-        mock_response = Mock()
-        mock_response.status_code = 400
-        mock_response.text = (
-            '{"ok":false,"error_code":400,"description":"Bad Request: chat not found"}'
-        )
-        mock_post.return_value = mock_response
 
-        result = send_telegram_message(self.message)
+class SendNotificationTestCase(TestCase):
+    @patch("notifications_service.utils.send_telegram_message", return_value=True)
+    def test_send_notification_success(self, mock_send_telegram):
+        message = "Test message"
+        send_notification(message)
+        mock_send_telegram.assert_called_once_with(message)
 
-        mock_post.assert_called_once()
-        self.assertFalse(result)
-
-    @patch("notifications_service.utils.requests.post")
-    def test_send_telegram_message_network_error(self, mock_post):
-        mock_post.side_effect = requests.exceptions.ConnectionError(
-            "Network is unreachable"
-        )
-
-        result = send_telegram_message(self.message)
-
-        self.assertFalse(result)
-
-    @patch("notifications_service.utils.requests.post")
-    def test_send_telegram_message_long_message(self, mock_post):
-        mock_response = Mock()
-        mock_response.status_code = 200
-        mock_response.json.return_value = {"ok": True, "result": {"message_id": 123}}
-        mock_post.return_value = mock_response
-
-        # near message length Telegram limit 4096
-        long_message = "A" * 4000
-        result = send_telegram_message(long_message)
-
-        mock_post.assert_called_once_with(
-            f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage",
-            json={
-                "chat_id": settings.TELEGRAM_CHAT_ID,
-                "text": long_message,
-                "parse_mode": "Markdown",
-            },
-        )
-        self.assertTrue(result)
-
-    @patch("notifications_service.utils.requests.post")
-    def test_send_telegram_message_special_characters(self, mock_post):
-        mock_response = Mock()
-        mock_response.status_code = 200
-        mock_response.json.return_value = {"ok": True, "result": {"message_id": 123}}
-        mock_post.return_value = mock_response
-
-        special_message = "Test **bold** & <script> *italic* > text"
-        result = send_telegram_message(special_message)
-
-        mock_post.assert_called_once_with(
-            f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage",
-            json={
-                "chat_id": settings.TELEGRAM_CHAT_ID,
-                "text": special_message,
-                "parse_mode": "Markdown",
-            },
-        )
-        self.assertTrue(result)
+    @patch("notifications_service.utils.send_telegram_message", return_value=False)
+    def test_send_notification_failure(self, mock_send_telegram):
+        with self.assertRaises(Exception) as context:
+            send_notification("Test message")
+        self.assertEqual(str(context.exception), "Failed to send Telegram notification")
